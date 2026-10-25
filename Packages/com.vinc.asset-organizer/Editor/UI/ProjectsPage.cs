@@ -201,7 +201,9 @@ namespace VInc.AssetOrganizer.UI
             resetParent = UIKit.Btn("Assets に戻す", () => SetParent("Assets"), "ghost", "ao-ml4");
             whereRow.Add(resetParent);
             whereCard.Add(whereRow);
-            var recent = AODatabase.Projects.Select(p => Path.GetDirectoryName(p.RootPath ?? "")?.Replace('\\', '/'))
+            // フォルダーが消えた・移動されたプロジェクト（RootPath が null）は候補から外す
+            var recent = AODatabase.Projects.Select(p => p.RootPath).Where(r => !string.IsNullOrEmpty(r))
+                .Select(r => Path.GetDirectoryName(r)?.Replace('\\', '/'))
                 .Where(x => !string.IsNullOrEmpty(x) && x != "Assets" && AssetDatabase.IsValidFolder(x)).Distinct().Take(6).ToList();
             if (recent.Count > 0)
             {
