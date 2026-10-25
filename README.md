@@ -7,6 +7,12 @@ VRChat ギミック制作向けの Unity エディター拡張です。
 
 ## インストール（VCC）
 
+**かんたん：** 次の URL を開くと VCC が起動し、そのまま追加できます（ブラウザの確認で「開く」を押してください）。
+
+https://temu-chan.github.io/vinc-asset-organizer/add/
+
+**手動で追加する場合：**
+
 1. VRChat Creator Companion（VCC）を開き、**Settings → Packages → Add Repository** を押します。
 2. 次の URL を貼り付けて **Add** を押します。
    ```

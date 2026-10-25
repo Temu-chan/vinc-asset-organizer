@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>V.inc Asset Organizer を VCC に追加</title>
+  <style>
+    :root {
+      --bg: #f4f5f7; --card: #ffffff; --text: #1d1f22; --dim: #5d636c; --accent: #2f73e0; --accent-hover: #3f82ef;
+      --border: #d9dce1; --warn-bg: #fff6e0; --warn: #8a5a00;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #1e2023; --card: #26282c; --text: #e9eaec; --dim: #a4a8ae; --accent: #4c8df6; --accent-hover: #67a0ff;
+        --border: #3a3d42; --warn-bg: #3a3020; --warn: #f1c46b; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px;
+      background: var(--bg); color: var(--text); font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic UI", Meiryo, sans-serif; }
+    .card { width: 100%; max-width: 520px; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 28px; }
+    .logo { width: 44px; height: 44px; border-radius: 11px; background: var(--accent); color: #fff; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+    h1 { font-size: 20px; margin: 0 0 6px; }
+    p { margin: 0 0 14px; line-height: 1.7; color: var(--dim); }
+    .btn { display: block; width: 100%; padding: 13px 16px; border: 0; border-radius: 9px; background: var(--accent); color: #fff;
+      font-size: 15px; font-weight: 700; text-align: center; text-decoration: none; cursor: pointer; }
+    .btn:hover { background: var(--accent-hover); }
+    .btn.sub { background: transparent; color: var(--accent); border: 1px solid var(--border); margin-top: 8px; font-weight: 600; }
+    ol { margin: 0 0 14px; padding-left: 20px; line-height: 1.8; color: var(--dim); }
+    code { display: block; padding: 10px 12px; border-radius: 8px; background: var(--bg); border: 1px solid var(--border);
+      font-size: 12px; word-break: break-all; color: var(--text); margin-bottom: 8px; }
+    .note { background: var(--warn-bg); color: var(--warn); border-radius: 8px; padding: 10px 12px; font-size: 13px; line-height: 1.6; margin-top: 18px; }
+    details { margin-top: 16px; }
+    summary { cursor: pointer; color: var(--dim); font-size: 14px; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="logo">AO</div>
+    <h1>V.inc Asset Organizer を VCC に追加</h1>
+    <p id="status">VRChat Creator Companion（VCC）を開いています…<br>
+      ブラウザに「VRChat Creator Companion を開きますか？」と出たら <strong>開く</strong> を押してください。
+      VCC の確認画面で <strong>I Understand, Add Repository</strong> を押すと追加されます。</p>
+
+    <a class="btn" id="open" href="#">VCC に追加する</a>
+    <button class="btn sub" id="copy" type="button">URL をコピー</button>
+
+    <details>
+      <summary>うまく開かないとき（手動で追加）</summary>
+      <ol>
+        <li>VCC を開き、<strong>Settings → Packages → Add Repository</strong> を押す</li>
+        <li>次の URL を貼り付けて <strong>Add</strong> を押す</li>
+      </ol>
+      <code id="url"></code>
+      <p>追加後は、各プロジェクトの <strong>Manage Project</strong> から「V.inc Asset Organizer」を追加してください。</p>
+    </details>
+
+    <div class="note">⚠ このツールは社内の許可された人のみ使用できます。このページの URL を社外に共有しないでください。</div>
+  </main>
+
+  <script>
+    const LISTING_URL = "https://temu-chan.github.io/vinc-asset-organizer/index.json";
+    const VCC_URL = "vcc://vpm/addRepo?url=" + encodeURIComponent(LISTING_URL);
+
+    document.getElementById("url").textContent = LISTING_URL;
+    const open = document.getElementById("open");
+    open.href = VCC_URL;
+
+    document.getElementById("copy").addEventListener("click", async (e) => {
+      try {
+        await navigator.clipboard.writeText(LISTING_URL);
+        e.target.textContent = "コピーしました";
+      } catch {
+        e.target.textContent = "コピーできませんでした（下の URL を手動でコピーしてください）";
+        document.querySelector("details").open = true;
+      }
+    });
+
+    // 開いた瞬間に VCC を呼び出す（ブラウザの確認が出たら「開く」を押す）
+    window.addEventListener("load", () => {
+      window.location.href = VCC_URL;
+      setTimeout(() => {
+        document.getElementById("status").innerHTML =
+          "VCC が開かなかった場合は、下の「VCC に追加する」を押してください。<br>" +
+          "それでも開かないときは「うまく開かないとき」の手順で手動追加できます。";
+      }, 2500);
+    });
+  </script>
+</body>
+</html>
