@@ -1,0 +1,20 @@
+{
+    "name": "VInc.AssetOrganizer.Tests",
+    "rootNamespace": "VInc.AssetOrganizer.Tests",
+    "references": [
+        "VInc.AssetOrganizer.Editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "VINC_AO_DEV"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
