@@ -4,6 +4,7 @@ VRChat ギミック制作向けの Unity エディター拡張です。
 **案件フォルダーの自動作成 → 「何を含めるか」のプロファイル登録 → UnityPackage の書き出し（単発・シーケンス）** を 1 つのウィンドウで行います。
 
 - メニュー：`V.inc / Avatar Hub`
+- ウィンドウ：既定は独立したウィンドウ。前回閉じたときの位置と大きさで開きます（はじめては Unity 本体の中央）。最小サイズは 640×480（設定で Unity のタブとして開くようにもできます）
 - 対応：Unity 2022.3（VRChat SDK / Modular Avatar 環境で動作確認）
 - 依存パッケージなし（MA の参照もシリアライズ参照として追跡するため、MA の DLL を直接参照しません）
 
@@ -57,6 +58,7 @@ PC 全体で共通です（どの Unity プロジェクトを開いても同じ�
 | プロファイル | `ドキュメント/V.inc/Avatar Hub/Profiles/*.profile.json` | 書き出し / 読み込み |
 | 設定 | `ドキュメント/V.inc/Avatar Hub/settings.json` | — |
 | 書き出し履歴（前回のバージョン） | `ドキュメント/V.inc/Avatar Hub/history.json` | — |
+| ウィンドウの位置と大きさ | `ドキュメント/V.inc/Avatar Hub/window.json` | — |
 | unitypackage の既定の出力先 | `<Unityプロジェクト>/Exports/`（設定・プロファイルごとに変更可） | — |
 
 旧バージョン（Asset Organizer）のデータ（`%AppData%/V.inc/AssetOrganizer` と `<Unityプロジェクト>/AssetOrganizer`）は、初回起動時に自動でコピーして引き継ぎます。

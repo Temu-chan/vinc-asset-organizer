@@ -341,10 +341,14 @@
 .viah-placeholder {
     position: absolute;
     left: 10px;
+    right: 4px;
     top: 0;
     bottom: 0;
     -unity-text-align: middle-left;
     color: var(--text-faint);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .viah-root Label.viah-placeholder {
@@ -695,6 +699,10 @@
     flex-direction: row;
     align-items: center;
     flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 140px;
+    overflow: hidden;
+    margin-right: 10px;
     max-width: 520px;
     height: 30px;
     padding: 0 10px;
@@ -710,6 +718,9 @@
 
 .viah-search .viah-textfield {
     margin-left: 6px;
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .viah-root .viah-search .viah-input > .unity-base-text-field__input {
@@ -2415,4 +2426,157 @@
 .viah-tag.is-flash {
     background-color: var(--warn-soft);
     scale: 1.08 1.08;
+}
+
+/* ───────────────────────── ページ上部（タイトル＋切り替え） ───────────────────────── */
+
+.viah-page-top {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 18px 26px 12px 26px;
+    border-bottom-width: 1px;
+    border-color: var(--border);
+    flex-shrink: 0;
+}
+
+.viah-page-top-titles {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 220px;
+    margin: 0 12px 6px 0;
+}
+
+.viah-page-top-titles > Label {
+    white-space: normal;
+}
+
+.viah-root.compact .viah-page-top {
+    padding: 14px 14px 10px 14px;
+}
+
+/* ───────────────────────── 狭いときの崩れ防止 ───────────────────────── */
+
+/* 縦に並べたときは高さを内容に合わせる（flex-basis: 0 のままだと潰れて重なる） */
+.viah-root.compact .viah-choice,
+.viah-root.compact .viah-recent {
+    flex-basis: auto;
+    flex-shrink: 0;
+}
+
+.viah-root.compact .viah-choice-row,
+.viah-root.compact .viah-recent-row {
+    margin: 0;
+}
+
+.viah-root.compact .viah-choice,
+.viah-root.compact .viah-recent {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.viah-root.compact .viah-page {
+    padding: 16px 14px 18px 14px;
+}
+
+.viah-root.compact .viah-footer-bar {
+    padding: 10px 14px;
+    flex-wrap: wrap;
+}
+
+.viah-root.compact .viah-stepper-label {
+    display: none;
+}
+
+.viah-root.compact .viah-stepper-item.is-active .viah-stepper-label {
+    display: flex;
+}
+
+.viah-root.compact .viah-stepper-line {
+    min-width: 8px;
+    margin: 0 6px;
+}
+
+.viah-root.compact .viah-detail-pane {
+    min-width: 0;
+}
+
+.viah-root.compact .viah-list-pane {
+    padding: 12px 8px 8px 8px;
+}
+
+.viah-root.compact .viah-header {
+    padding: 0 10px;
+}
+
+.viah-root.compact .viah-brand {
+    width: 44px;
+}
+
+.viah-root.mid .viah-task-cell {
+    width: 50%;
+}
+
+/* 詳細ページの見出し：狭いときはボタンがまとめて次の行へ回り、名前は「…」で切る */
+.viah-page-head {
+    flex-wrap: wrap;
+}
+
+.viah-page-head > .viah-page-title {
+    flex-shrink: 1;
+    min-width: 120px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.viah-page-head-tools {
+    flex-direction: row;
+    align-items: center;
+    flex-shrink: 0;
+    margin: 4px 0;
+}
+
+.viah-btn-group {
+    flex-wrap: wrap;
+}
+
+.viah-root.compact .viah-btn-group > .viah-btn {
+    margin-bottom: 4px;
+}
+
+/* 一覧の見出し：狭いときは「新規」をアイコンだけにする */
+.viah-list-title {
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.viah-root.compact .viah-list-pane-head .viah-btn.primary {
+    padding: 0 5px;
+}
+
+.viah-root.compact .viah-list-pane-head .viah-btn.primary Label {
+    display: none;
+}
+
+.viah-root.compact .viah-list-pane-head .viah-btn.primary .viah-icon {
+    margin-right: 0;
+}
+
+/* プロファイル作成「中身を確認」 */
+.viah-select-wrap {
+    padding: 0 26px 10px 26px;
+}
+
+.viah-root.compact .viah-select-wrap {
+    padding: 0 14px 10px 14px;
+}
+
+.viah-toolbar-group {
+    flex-direction: row;
+    align-items: center;
+    flex-shrink: 0;
+    margin-bottom: 4px;
 }

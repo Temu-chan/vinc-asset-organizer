@@ -681,13 +681,15 @@ namespace VInc.AvatarHub.UI
             var head = UIKit.Div("viah-page-head");
             head.Add(UIKit.Img("FolderOpened Icon"));
             head.Add(UIKit.Text(p.name, "viah-page-title", "viah-ml8", "viah-grow"));
+            var tools = UIKit.Row("viah-page-head-tools");
+            head.Add(tools);
             var reveal = UIKit.Btn("Search Icon", "Project で表示", () => UIKit.Reveal(rootPath));
             reveal.SetEnabled(rootPath != null);
-            head.Add(reveal);
+            tools.Add(reveal);
             var share = UIKit.Btn("SaveAs", "JSONで渡す", () => ShareProject(p), "viah-ml4");
             share.name = "btn-project-share";
             share.tooltip = "このプロジェクト（フォルダー構成とタグ）を JSON に書き出して、人に渡せるようにします";
-            head.Add(share);
+            tools.Add(share);
             var more = UIKit.Btn("…", null, "viah-ml4");
             more.name = "btn-project-menu";
             more.clicked += () =>
@@ -715,7 +717,7 @@ namespace VInc.AvatarHub.UI
                 });
                 menu.DropDown(more.worldBound);
             };
-            head.Add(more);
+            tools.Add(more);
             c.Add(head);
             c.Add(UIKit.Text(rootPath ?? p.root.path, "viah-page-sub"));
 

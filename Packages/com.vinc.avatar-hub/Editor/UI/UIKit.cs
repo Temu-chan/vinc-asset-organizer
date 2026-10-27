@@ -308,6 +308,13 @@ namespace VInc.AvatarHub.UI
 
         public void SetError(bool on) => UIKit.SetClass(field, "is-error", on);
 
+        /// <summary>幅に合わせて短くするときなどに使う。</summary>
+        public string Placeholder
+        {
+            get => placeholder.text;
+            set => placeholder.text = value;
+        }
+
         void Refresh() => placeholder.style.display = string.IsNullOrEmpty(field.value) && !focused ? DisplayStyle.Flex : DisplayStyle.None;
     }
 

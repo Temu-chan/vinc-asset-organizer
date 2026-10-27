@@ -36,6 +36,7 @@ namespace VInc.AvatarHub.UI
             var import = UIKit.IconBtn("Import", "JSON から読み込む（人からもらったプロファイルを使う）", Import, "small", "ghost");
             head.Add(import);
             var add = UIKit.Btn("Toolbar Plus", "新規", () => window.Show(new ProfileWizardPage(null)), "small", "primary", "viah-ml4");
+            add.tooltip = "新しいプロファイルを作る";
             head.Add(add);
             listPane.Add(head);
             var search = new ViahTextField("名前・タグで絞り込み");
@@ -135,7 +136,9 @@ namespace VInc.AvatarHub.UI
             var head = UIKit.Div("viah-page-head");
             head.Add(UIKit.Img("Prefab Icon"));
             head.Add(UIKit.Text(p.name, "viah-page-title", "viah-ml8", "viah-grow"));
-            head.Add(UIKit.Btn("SaveAs", "エクスポートへ", () => window.Show(new ExportPage(p.id)), "primary"));
+            var tools = UIKit.Row("viah-page-head-tools");
+            tools.Add(UIKit.Btn("SaveAs", "エクスポートへ", () => window.Show(new ExportPage(p.id)), "primary"));
+            head.Add(tools);
             c.Add(head);
             c.Add(UIKit.Text($"パッケージ名：{p.PackageBaseName}", "viah-page-sub"));
 

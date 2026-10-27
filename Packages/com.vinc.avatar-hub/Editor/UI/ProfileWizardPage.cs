@@ -547,12 +547,13 @@ namespace VInc.AvatarHub.UI
                 return;
             }
 
-            var wrap = UIKit.Div();
-            wrap.style.flexGrow = 1;
-            wrap.style.paddingLeft = 26;
-            wrap.style.paddingRight = 26;
-            wrap.style.paddingBottom = 10;
-            body.Add(wrap);
+            // 高さが足りないときは画面ごとスクロールし、リストは一定の高さを保つ（狭いウィンドウで重ならないように）
+            var scroller = new ScrollView(ScrollViewMode.Vertical) { horizontalScrollerVisibility = ScrollerVisibility.Hidden };
+            scroller.style.flexGrow = 1;
+            scroller.style.flexShrink = 1;
+            body.Add(scroller);
+            var wrap = scroller.contentContainer;
+            wrap.AddToClassList("viah-select-wrap");
 
             if (!string.IsNullOrEmpty(scanMessage))
                 wrap.Add(UIKit.Hint(null, "自動検出の結果", scanMessage, newPaths.Count > 0 ? "warn" : "success", true));
@@ -560,17 +561,23 @@ namespace VInc.AvatarHub.UI
                 "行をクリックで 1 つずつ切り替え、Shift＋クリックで範囲をまとめて切り替えます。フォルダーのチェックは「中身ぜんぶ（これから増えるファイルも）」の意味です。行にマウスを乗せると「フォルダーごと」ボタンと、Project ウィンドウで表示するボタンが出ます。"));
 
             var tree = new AssetTreeView();
+            // 絞り込み（左）と表示の操作（右）は、狭いときにまとまって次の行へ回る
             var toolbar = UIKit.Div("viah-toolbar");
+            var filters = UIKit.Row("viah-toolbar-group");
             var search = new ViahTextField("ファイル名で絞り込み");
-            search.style.maxWidth = 220;
+            search.style.width = 170;
+            search.style.flexGrow = 0;
             search.changed += q => tree.SetQuery(q);
-            toolbar.Add(search);
+            filters.Add(search);
             var seg = new Segmented(new[] { "すべて", "選択中", "未選択", "自動", "外部", "新規" }, 0, i => tree.SetFilter((AssetTreeView.Filter)i), true);
             seg.style.marginLeft = 8;
-            toolbar.Add(seg);
+            filters.Add(seg);
+            toolbar.Add(filters);
             toolbar.Add(UIKit.Spacer());
-            toolbar.Add(UIKit.Btn("すべて開く", () => tree.ExpandAll(true), "small", "ghost"));
-            toolbar.Add(UIKit.Btn("閉じる", () => tree.ExpandAll(false), "small", "ghost"));
+            var view = UIKit.Row("viah-toolbar-group");
+            toolbar.Add(view);
+            view.Add(UIKit.Btn("すべて開く", () => tree.ExpandAll(true), "small", "ghost"));
+            view.Add(UIKit.Btn("閉じる", () => tree.ExpandAll(false), "small", "ghost"));
             var all = new Switch("Assets 全体を表示", showAll, "基準フォルダーの外も含めて、Assets のすべてから選びます");
             all.style.marginLeft = 10;
             all.changed += on =>
@@ -578,10 +585,22 @@ namespace VInc.AvatarHub.UI
                 showAll = on;
                 tree.Setup(model, basePath, showAll, scan, newPaths);
             };
-            toolbar.Add(all);
+            view.Add(all);
             wrap.Add(toolbar);
 
             wrap.Add(tree);
+
+            // リストの高さ：空いている高さいっぱい。ただし 240 より小さくはしない（そのときは画面がスクロールする）
+            void FitTree()
+            {
+                var viewport = scroller.contentViewport.layout.height;
+                if (float.IsNaN(viewport) || viewport <= 0 || float.IsNaN(tree.layout.height)) return;
+                var others = wrap.layout.height - tree.layout.height;
+                var h = Mathf.Max(240f, Mathf.Floor(viewport - others));
+                if (Mathf.Abs(tree.layout.height - h) > 1f) tree.style.height = h;
+            }
+            scroller.contentViewport.RegisterCallback<GeometryChangedEvent>(_ => FitTree());
+            wrap.RegisterCallback<GeometryChangedEvent>(_ => FitTree());
 
             var legend = UIKit.Div("viah-legend");
             legend.Add(Legend("自動", "auto", "プレハブが使っている"));

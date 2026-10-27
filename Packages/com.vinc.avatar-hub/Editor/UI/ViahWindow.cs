@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -91,23 +93,116 @@ namespace VInc.AvatarHub.UI
         int hitIndex;
         IVisualElementScheduledItem toastTimer;
 
+        /// <summary>これより小さくするとレイアウトが保てないので、ウィンドウの最小サイズにする。</summary>
+        public static readonly Vector2 MinSize = new Vector2(640, 480);
+
         [MenuItem("V.inc/Avatar Hub", priority = 0)]
         public static ViahWindow Open()
         {
             ViahWindow w;
-            if (HasOpenInstances<ViahWindow>() || ViahDatabase.Settings.windowMode == "float")
+            if (HasOpenInstances<ViahWindow>())
             {
                 w = GetWindow<ViahWindow>(false, "Avatar Hub", true);
             }
-            else
+            else if (ViahDatabase.Settings.windowMode == "tab")
             {
-                // 既定は Unity のタブとして開く（独立したウィンドウは Unity の仕様で常に本体より前に出るため）
                 w = GetWindow<ViahWindow>("Avatar Hub", true, typeof(SceneView));
             }
+            else
+            {
+                // 独立したウィンドウ（既定）：前回の位置と大きさで開く
+                w = CreateInstance<ViahWindow>();
+                w.titleContent = new GUIContent("Avatar Hub", Logo != null ? Logo : UIKit.Icon("Folder Icon"));
+                w.minSize = MinSize;
+                w.Show();
+                w.position = FloatRect();
+            }
             w.titleContent = new GUIContent("Avatar Hub", Logo != null ? Logo : UIKit.Icon("Folder Icon"));
-            w.minSize = new Vector2(560, 420);
+            w.minSize = MinSize;
             w.Show();
+            w.Focus();
             return w;
+        }
+
+        // ───────────── 独立ウィンドウの位置と大きさ ─────────────
+
+        /// <summary>前回の位置と大きさ。はじめてのときや画面の外になるときは、Unity 本体の中央に本体の 8 割ほどの大きさで開く。</summary>
+        static Rect FloatRect()
+        {
+            var s = File.Exists(ViahStorage.WindowFile) ? ViahStorage.Read<WindowState>(ViahStorage.WindowFile) : null;
+            if (s != null && s.has && s.width >= MinSize.x && s.height >= MinSize.y)
+            {
+                var r = new Rect(s.x, s.y, s.width, s.height);
+                if (IsOnScreen(r)) return r;
+            }
+            var main = EditorGUIUtility.GetMainWindowPosition();
+            float w = Mathf.Clamp(main.width * 0.8f, MinSize.x, 1280);
+            float h = Mathf.Clamp(main.height * 0.85f, MinSize.y, 880);
+            return new Rect(main.x + (main.width - w) / 2, main.y + (main.height - h) / 2, w, h);
+        }
+
+        Rect lastRect;
+        bool rectDirty;
+        double rectChangedAt;
+
+        void TrackRect()
+        {
+            if (docked) return;
+            var r = position;
+            if (r.width < MinSize.x || r.height < MinSize.y || r == lastRect) return;
+            lastRect = r;
+            rectDirty = true;
+            rectChangedAt = EditorApplication.timeSinceStartup;
+        }
+
+        void SaveWindowRect()
+        {
+            if (!rectDirty) return;
+            rectDirty = false;
+            try
+            {
+                ViahStorage.Write(ViahStorage.WindowFile, new WindowState { has = true, x = lastRect.x, y = lastRect.y, width = lastRect.width, height = lastRect.height });
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("[Avatar Hub] ウィンドウの位置を保存できませんでした: " + e.Message);
+            }
+        }
+
+        void OnLostFocus()
+        {
+            TrackRect();
+            SaveWindowRect();
+        }
+
+#if UNITY_EDITOR_WIN
+        [StructLayout(LayoutKind.Sequential)]
+        struct NativePoint
+        {
+            public int x, y;
+        }
+
+        [DllImport("user32.dll")]
+        static extern IntPtr MonitorFromPoint(NativePoint pt, uint flags);
+#endif
+
+        /// <summary>ウィンドウのタイトル付近がどこかのモニターに入っているか（モニターを外したときに画面外で開かないように）。</summary>
+        static bool IsOnScreen(Rect r)
+        {
+#if UNITY_EDITOR_WIN
+            try
+            {
+                float k = EditorGUIUtility.pixelsPerPoint;
+                var pt = new NativePoint { x = Mathf.RoundToInt((r.x + Mathf.Min(80, r.width / 2)) * k), y = Mathf.RoundToInt((r.y + 10) * k) };
+                return MonitorFromPoint(pt, 0) != IntPtr.Zero;
+            }
+            catch
+            {
+                return true;
+            }
+#else
+            return true;
+#endif
         }
 
         void CreateGUI()
@@ -150,7 +245,18 @@ namespace VInc.AvatarHub.UI
                 if (float.IsNaN(w)) return;
                 UIKit.SetClass(root, "narrow", w < 1080);
                 UIKit.SetClass(root, "compact", w < 820);
+                UIKit.SetClass(root, "mid", w < 980);
+                searchField.Placeholder = w < 820 ? "検索（名前・タグ）　Ctrl+F"
+                    : w < 1180 ? "プロジェクト・プロファイルを検索（日本語のタグでもOK）"
+                    : "プロジェクト・プロファイルを検索（日本語のタグでもOK　例：くじら、てくすちゃ）　Ctrl+F";
             });
+
+            // 独立ウィンドウの位置と大きさを覚えておく（閉じる瞬間は正しい位置が取れないので、開いている間に記録する）
+            root.schedule.Execute(() =>
+            {
+                TrackRect();
+                if (rectDirty && EditorApplication.timeSinceStartup - rectChangedAt > 1.0) SaveWindowRect();
+            }).Every(500);
 
             ViahDatabase.Changed -= OnDataChanged;
             ViahDatabase.Changed += OnDataChanged;
@@ -163,8 +269,14 @@ namespace VInc.AvatarHub.UI
             Navigate(SessionState.GetString(PageKey, "home"));
         }
 
+        void OnEnable()
+        {
+            minSize = MinSize;
+        }
+
         void OnDisable()
         {
+            SaveWindowRect();
             ViahDatabase.Changed -= OnDataChanged;
             UndoHub.DataRestored -= OnDataRestored;
             UndoHub.UiRestored -= OnUiRestored;

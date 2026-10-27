@@ -42,10 +42,54 @@ namespace VInc.AvatarHub.Tests
                     w.position = new Rect(v[0], v[1], v[2], v[3]);
                 };
             }
+            // 開き方の確認用：Temp/viah_open.request（中身が fresh なら前回の位置を消してから）で開き直し、位置を Temp/viah_open.log に書く
+            if (File.Exists("Temp/viah_open.request"))
+            {
+                var openReq = File.ReadAllText("Temp/viah_open.request");
+                bool fresh = openReq.Contains("fresh");
+                // rect=x,y,w,h なら、閉じる前にその位置・大きさにする（ユーザーが動かした状態のまね）
+                var rectArg = openReq.Contains("rect=") ? openReq.Substring(openReq.IndexOf("rect=") + 5).Trim().Split(',').Select(float.Parse).ToArray() : null;
+                File.Delete("Temp/viah_open.request");
+                EditorApplication.delayCall += () =>
+                {
+                    var olds = Resources.FindObjectsOfTypeAll<ViahWindow>();
+                    if (rectArg != null)
+                        foreach (var old in olds) old.position = new Rect(rectArg[0], rectArg[1], rectArg[2], rectArg[3]);
+                    // ウィンドウが位置を記録するまで少し待ってから閉じる
+                    var until = EditorApplication.timeSinceStartup + (rectArg != null ? 2.5 : 0);
+                    EditorApplication.CallbackFunction step = null;
+                    step = () =>
+                    {
+                        if (EditorApplication.timeSinceStartup < until) return;
+                        EditorApplication.update -= step;
+                        foreach (var old in olds)
+                            if (old != null) old.Close();
+                        if (fresh && File.Exists(ViahStorage.WindowFile)) File.Delete(ViahStorage.WindowFile);
+                        EditorApplication.delayCall += () =>
+                        {
+                            var w = ViahWindow.Open();
+                            EditorApplication.delayCall += () => File.WriteAllText("Temp/viah_open.log",
+                                $"pos={w.position} docked={w.docked} mode={ViahDatabase.Settings.windowMode} main={EditorGUIUtility.GetMainWindowPosition()} min={w.minSize}");
+                        };
+                    };
+                    EditorApplication.update += step;
+                };
+            }
             if (!File.Exists(Request)) return;
+            // 中身に "640x480,1000x700" のように書くと、その大きさごとに全画面を撮る
+            sizes.Clear();
+            foreach (var part in File.ReadAllText(Request).Split(new[] { ',', ' ', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                var wh = part.Split('x');
+                if (wh.Length == 2 && float.TryParse(wh[0], out var sw) && float.TryParse(wh[1], out var sh)) sizes.Add(new Vector2(sw, sh));
+            }
             File.Delete(Request);
             EditorApplication.delayCall += Start;
         }
+
+        static readonly List<Vector2> sizes = new List<Vector2>();
+        static int sizeIndex;
+        static string prefix = "";
 
         [MenuItem("V.inc/開発/Avatar Hub 画面テスト", priority = 1001)]
         static void Start()
@@ -118,11 +162,20 @@ namespace VInc.AvatarHub.Tests
             }));
 
             window = ViahWindow.Open();
-            window.position = new Rect(80, 80, 1240, 780);
+            sizeIndex = 0;
+            ApplySize();
             stepIndex = 0;
             wait = 0;
             EditorApplication.update -= Tick;
             EditorApplication.update += Tick;
+        }
+
+        static void ApplySize()
+        {
+            var size = sizes.Count > 0 ? sizes[sizeIndex] : new Vector2(1240, 780);
+            window.position = new Rect(80, 80, size.x, size.y);
+            prefix = sizes.Count > 0 ? $"{size.x:0}x{size.y:0}_" : "";
+            log.AppendLine($"── size {size.x:0}x{size.y:0}");
         }
 
         static void Go(int step)
@@ -159,6 +212,14 @@ namespace VInc.AvatarHub.Tests
             }
             if (stepIndex >= steps.Count)
             {
+                if (sizeIndex + 1 < sizes.Count)
+                {
+                    sizeIndex++;
+                    ApplySize();
+                    stepIndex = 0;
+                    wait = 0;
+                    return;
+                }
                 Finish();
                 return;
             }
@@ -189,7 +250,7 @@ namespace VInc.AvatarHub.Tests
                 var tex = new Texture2D(w, h, TextureFormat.RGB24, false);
                 tex.SetPixels(px);
                 tex.Apply();
-                File.WriteAllBytes($"Temp/viah_ui_{name}.png", tex.EncodeToPNG());
+                File.WriteAllBytes($"Temp/viah_ui_{prefix}{name}.png", tex.EncodeToPNG());
                 UnityEngine.Object.DestroyImmediate(tex);
             }
             catch (Exception e)

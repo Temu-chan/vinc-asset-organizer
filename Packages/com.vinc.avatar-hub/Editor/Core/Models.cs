@@ -239,13 +239,13 @@ namespace VInc.AvatarHub
     public class ViahSettings
     {
         public string kind = "AvatarHub.Settings";
-        public int schema = 1;
+        public int schema = 2;
         /// <summary>"unity"（Unity のグレー）/ "dark" / "light"</summary>
         public string theme = "dark";
         /// <summary>"blue" / "cyan" / "green" / "orange" / "red" / "purple" / "pink"</summary>
         public string accent = "blue";
-        /// <summary>"tab"（Unity のタブとして開く）/ "float"（独立したウィンドウ）</summary>
-        public string windowMode = "tab";
+        /// <summary>"float"（独立したウィンドウ・おすすめ）/ "tab"（Unity のタブとして開く）</summary>
+        public string windowMode = "float";
         /// <summary>サイドバーに表示しないワークフローのキー。</summary>
         public List<string> hiddenWorkflows = new List<string>();
         public string debugLabel = "Debug";
@@ -273,12 +273,27 @@ namespace VInc.AvatarHub
         {
             if (theme != "unity" && theme != "light") theme = "dark";
             if (string.IsNullOrEmpty(accent)) accent = "blue";
-            if (windowMode != "float") windowMode = "tab";
+            // schema 1 は「タブ」が既定だった。自分で選んだわけではないので、新しい既定（独立ウィンドウ）にする
+            if (schema < 2)
+            {
+                windowMode = "float";
+                schema = 2;
+            }
+            if (windowMode != "tab") windowMode = "float";
             hiddenWorkflows ??= new List<string>();
             if (string.IsNullOrWhiteSpace(debugLabel)) debugLabel = "Debug";
             defaultOutputFolder ??= "";
             profilePrefs ??= new List<ProfilePrefs>();
         }
+    }
+
+    /// <summary>独立ウィンドウの前回の位置と大きさ（Undo の対象外）。</summary>
+    [Serializable]
+    public class WindowState
+    {
+        public string kind = "AvatarHub.Window";
+        public bool has;
+        public float x, y, width, height;
     }
 
     // ───────────────────────── 書き出し履歴（Undo の対象外） ─────────────────────────

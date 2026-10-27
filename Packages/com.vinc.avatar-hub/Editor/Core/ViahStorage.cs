@@ -35,6 +35,8 @@ namespace VInc.AvatarHub
         public static string SettingsFile => Path.Combine(DataDir, "settings.json");
         /// <summary>書き出しの履歴（前回のバージョンなど）。Undo では戻さない。</summary>
         public static string HistoryFile => Path.Combine(DataDir, "history.json");
+        /// <summary>独立ウィンドウの前回の位置と大きさ。Undo では戻さない。</summary>
+        public static string WindowFile => Path.Combine(DataDir, "window.json");
 
         /// <summary>unitypackage の既定の書き出し先（Unity プロジェクトごと）。</summary>
         public static string DefaultExportDir => Path.Combine(ProjectRoot, "Exports");

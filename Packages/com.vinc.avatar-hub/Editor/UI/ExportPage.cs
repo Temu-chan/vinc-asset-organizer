@@ -37,27 +37,24 @@ namespace VInc.AvatarHub.UI
             var profiles = ViahDatabase.Profiles;
             if (selectedId == null && profiles.Count > 0) selectedId = profiles[0].id;
 
-            var top = UIKit.Row();
-            top.style.paddingLeft = 26;
-            top.style.paddingRight = 26;
-            top.style.paddingTop = 18;
-            top.style.paddingBottom = 12;
-            top.style.borderBottomWidth = 1;
-            top.style.flexShrink = 0;
-            top.AddToClassList("viah-header-line");
-            var titles = UIKit.Div("viah-grow");
+            // 幅が足りないときは切り替えが下の行に回る
+            var top = UIKit.Div("viah-page-top");
+            var titles = UIKit.Div("viah-page-top-titles");
             titles.Add(UIKit.Text("エクスポート", "viah-page-title"));
             titles.Add(UIKit.Text("プロファイルを選んで unitypackage を書き出します。", "viah-dim"));
             top.Add(titles);
+            var switcher = UIKit.Row();
+            switcher.style.flexShrink = 0;
+            top.Add(switcher);
             var seg = new Segmented(new[] { "単発エクスポート", "シーケンスエクスポート" }, mode, i =>
             {
                 mode = i;
                 SessionState.SetInt(ModeKey, i);
                 Render();
             });
-            top.Add(seg);
+            switcher.Add(seg);
             var settings = UIKit.IconBtn("SettingsIcon", "エクスポートの設定（種別ラベル・既定の書き出し先）を開く", ShowSettings, "viah-ml8");
-            top.Add(settings);
+            switcher.Add(settings);
             root.Add(top);
 
             content = UIKit.Div();

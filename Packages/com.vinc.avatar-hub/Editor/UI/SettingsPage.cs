@@ -161,10 +161,10 @@ namespace VInc.AvatarHub.UI
             card.name = "card-window";
             card.Add(UIKit.SectionHead(null, "ウィンドウの開き方", "メニュー「V.inc → Avatar Hub」で開くときの形"));
             var row = UIKit.Div("viah-choice-row");
-            row.Add(WindowChoice("tab", "Unity のタブとして開く（おすすめ）", "Scene ビューの隣にタブとして入ります。ほかのウィンドウと重なっても前に出続けることはありません。"));
-            row.Add(WindowChoice("float", "独立したウィンドウで開く", "自由に動かせる別ウィンドウ。Unity の仕様で、Unity 本体よりは常に前に表示されます。"));
+            row.Add(WindowChoice("float", "独立したウィンドウで開く（おすすめ）", "自由に動かせる別ウィンドウ。前回閉じたときの位置と大きさで開きます（はじめては Unity 本体の中央）。Unity の仕様で、Unity 本体よりは前に表示されます。"));
+            row.Add(WindowChoice("tab", "Unity のタブとして開く", "Scene ビューの隣にタブとして入ります。大きさはタブの場所で決まります。"));
             card.Add(row);
-            card.Add(UIKit.Text("すでに開いているウィンドウはそのままです。タブを閉じてから開き直すと反映されます。", "viah-faint", "viah-small", "viah-mt8", "viah-wrap"));
+            card.Add(UIKit.Text($"すでに開いているウィンドウはそのままです。閉じてから開き直すと反映されます。ウィンドウは {ViahWindow.MinSize.x:0}×{ViahWindow.MinSize.y:0} より小さくはできません（それより小さいと表示が崩れるため）。", "viah-faint", "viah-small", "viah-mt8", "viah-wrap"));
             return card;
         }
 
