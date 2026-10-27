@@ -1,0 +1,20 @@
+{
+    "name": "VInc.AvatarHub.Tests",
+    "rootNamespace": "VInc.AvatarHub.Tests",
+    "references": [
+        "VInc.AvatarHub.Editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "VINC_VIAH_DEV"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

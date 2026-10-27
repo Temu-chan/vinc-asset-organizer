@@ -1,0 +1,14 @@
+{
+  "name": "com.vinc.avatar-hub",
+  "displayName": "V.inc Avatar Hub",
+  "version": "0.2.0",
+  "unity": "2022.3",
+  "description": "V.inc の VRChat 制作ハブ。プロジェクトフォルダーの自動作成と、プロファイル式の UnityPackage エクスポート（単発・シーケンス）を行うエディター拡張。社内の許可された人のみ使用できます。",
+  "author": {
+    "name": "V.inc",
+    "url": "https://github.com/Temu-chan/vinc-avatar-hub"
+  },
+  "documentationUrl": "https://github.com/Temu-chan/vinc-avatar-hub#readme",
+  "licensesUrl": "https://github.com/Temu-chan/vinc-avatar-hub/blob/main/LICENSE.md",
+  "vpmDependencies": {}
+}

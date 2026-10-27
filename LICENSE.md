@@ -1,8 +1,8 @@
-# V.inc Asset Organizer 利用規約
+# V.inc Avatar Hub 利用規約
 
 Copyright (c) 2026 V.inc. All rights reserved.
 
-本ソフトウェア（V.inc Asset Organizer。ソースコード・バイナリ・ドキュメントを含む）の著作権は V.inc に帰属します。
+本ソフトウェア（V.inc Avatar Hub。ソースコード・バイナリ・ドキュメントを含む）の著作権は V.inc に帰属します。
 
 1. **利用できる人**
    本ソフトウェアは、V.inc から使用を許可された社内関係者のみが使用できます。

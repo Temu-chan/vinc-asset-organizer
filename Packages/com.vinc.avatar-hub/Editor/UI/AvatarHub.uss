@@ -1,0 +1,2418 @@
+/* ───────────────────────── テーマ ───────────────────────── */
+
+/* 既定（ダーク）。ほかのテーマは下のクラスで上書きする */
+.viah-root {
+    --bg: #1e2023;
+    --input: #1e2023;
+    --surface: #26282c;
+    --surface-2: #2e3135;
+    --surface-3: #373a3f;
+    --hover: #3d4147;
+    --border: #3a3d42;
+    --border-strong: #52565d;
+    --text: #e9eaec;
+    --text-dim: #a4a8ae;
+    --text-faint: #72767d;
+    --accent: #4c8df6;
+    --accent-hover: #67a0ff;
+    --accent-text: #ffffff;
+    --accent-soft: rgba(76, 141, 246, 0.16);
+    --success: #3cc287;
+    --success-soft: rgba(60, 194, 135, 0.15);
+    --warn: #f1b443;
+    --warn-soft: rgba(241, 180, 67, 0.14);
+    --danger: #ee6363;
+    --danger-soft: rgba(238, 99, 99, 0.14);
+    --auto: #a98bf8;
+    --auto-soft: rgba(169, 139, 248, 0.17);
+    --ext: #f28c4d;
+    --ext-soft: rgba(242, 140, 77, 0.16);
+    --shadow: rgba(0, 0, 0, 0.45);
+
+    flex-grow: 1;
+    background-color: var(--bg);
+    color: var(--text);
+    font-size: 12px;
+}
+
+/* Unity のグレー（Pro スキン） */
+.viah-root.theme-unity-dark {
+    --bg: #282828;
+    --input: #2a2a2a;
+    --surface: #383838;
+    --surface-2: #404040;
+    --surface-3: #4b4b4b;
+    --hover: #565656;
+    --border: #262626;
+    --border-strong: #1d1d1d;
+    --text: #d4d4d4;
+    --text-dim: #a8a8a8;
+    --text-faint: #7c7c7c;
+    --shadow: rgba(0, 0, 0, 0.5);
+}
+
+/* Unity のグレー（Personal スキン） */
+.viah-root.theme-unity-light {
+    --bg: #bdbdbd;
+    --input: #f0f0f0;
+    --surface: #cbcbcb;
+    --surface-2: #d6d6d6;
+    --surface-3: #e0e0e0;
+    --hover: #ebebeb;
+    --border: #a6a6a6;
+    --border-strong: #8d8d8d;
+    --text: #101010;
+    --text-dim: #3c3c3c;
+    --text-faint: #686868;
+    --success: #1b8a57;
+    --success-soft: rgba(27, 138, 87, 0.14);
+    --warn: #9c6604;
+    --warn-soft: rgba(190, 130, 10, 0.16);
+    --danger: #c03030;
+    --danger-soft: rgba(192, 48, 48, 0.12);
+    --auto: #6a45d4;
+    --auto-soft: rgba(106, 69, 212, 0.13);
+    --ext: #b5551a;
+    --ext-soft: rgba(181, 85, 26, 0.13);
+    --shadow: rgba(0, 0, 0, 0.25);
+}
+
+.viah-root.theme-light {
+    --bg: #e6e7e9;
+    --input: #ffffff;
+    --surface: #f4f5f6;
+    --surface-2: #ffffff;
+    --surface-3: #e9eaed;
+    --hover: #dfe1e5;
+    --border: #cdd0d5;
+    --border-strong: #a9adb4;
+    --text: #1d1f22;
+    --text-dim: #575c64;
+    --text-faint: #8a8f97;
+    --success: #1e9b63;
+    --success-soft: rgba(30, 155, 99, 0.12);
+    --warn: #b97a06;
+    --warn-soft: rgba(214, 150, 20, 0.14);
+    --danger: #cf3b3b;
+    --danger-soft: rgba(207, 59, 59, 0.1);
+    --auto: #7651e0;
+    --auto-soft: rgba(118, 81, 224, 0.12);
+    --ext: #c8601f;
+    --ext-soft: rgba(200, 96, 31, 0.12);
+    --shadow: rgba(0, 0, 0, 0.2);
+}
+
+/* アクセントカラー（暗い配色用） */
+.viah-root.accent-blue { --accent: #4c8df6; --accent-hover: #67a0ff; --accent-soft: rgba(76, 141, 246, 0.16); }
+.viah-root.accent-cyan { --accent: #2bb3d9; --accent-hover: #4cc6e8; --accent-soft: rgba(43, 179, 217, 0.16); }
+.viah-root.accent-green { --accent: #3cba6f; --accent-hover: #55cc85; --accent-soft: rgba(60, 186, 111, 0.16); }
+.viah-root.accent-orange { --accent: #f08a24; --accent-hover: #f7a04a; --accent-soft: rgba(240, 138, 36, 0.17); }
+.viah-root.accent-red { --accent: #e5534b; --accent-hover: #f06b63; --accent-soft: rgba(229, 83, 75, 0.16); }
+.viah-root.accent-purple { --accent: #9b6cf2; --accent-hover: #ae86f7; --accent-soft: rgba(155, 108, 242, 0.18); }
+.viah-root.accent-pink { --accent: #e85d9e; --accent-hover: #f278b0; --accent-soft: rgba(232, 93, 158, 0.16); }
+
+/* アクセントカラー（明るい配色用：文字が読めるように少し濃く） */
+.viah-root.is-light.accent-blue { --accent: #2f73e0; --accent-hover: #3f82ef; --accent-soft: rgba(47, 115, 224, 0.13); }
+.viah-root.is-light.accent-cyan { --accent: #1489aa; --accent-hover: #1a9bbf; --accent-soft: rgba(20, 137, 170, 0.13); }
+.viah-root.is-light.accent-green { --accent: #21904c; --accent-hover: #28a258; --accent-soft: rgba(33, 144, 76, 0.13); }
+.viah-root.is-light.accent-orange { --accent: #cf6a08; --accent-hover: #df7810; --accent-soft: rgba(207, 106, 8, 0.14); }
+.viah-root.is-light.accent-red { --accent: #cc3838; --accent-hover: #da4848; --accent-soft: rgba(204, 56, 56, 0.12); }
+.viah-root.is-light.accent-purple { --accent: #7849de; --accent-hover: #8657ea; --accent-soft: rgba(120, 73, 222, 0.13); }
+.viah-root.is-light.accent-pink { --accent: #c63d7e; --accent-hover: #d44b8c; --accent-soft: rgba(198, 61, 126, 0.12); }
+
+/* ───────────────────────── 汎用 ───────────────────────── */
+
+.viah-hrow {
+    flex-direction: row;
+    align-items: center;
+}
+
+.viah-grow {
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.viah-dim {
+    color: var(--text-dim);
+}
+
+.viah-root Label.viah-dim {
+    color: var(--text-dim);
+}
+
+.viah-root Label.viah-faint {
+    color: var(--text-faint);
+}
+
+.viah-small {
+    font-size: 11px;
+}
+
+.viah-wrap {
+    white-space: normal;
+}
+
+.viah-ellipsis {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.viah-bold {
+    -unity-font-style: bold;
+}
+
+
+.viah-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+.viah-divider {
+    height: 1px;
+    background-color: var(--border);
+    margin: 12px 0;
+}
+
+/* ───────────────────────── ボタン ───────────────────────── */
+
+.viah-root .viah-btn {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: 28px;
+    min-width: 28px;
+    padding: 0 12px;
+    margin: 0;
+    border-width: 1px;
+    border-color: var(--border-strong);
+    border-radius: 6px;
+    background-color: var(--surface-3);
+    color: var(--text);
+    -unity-text-align: middle-center;
+    -unity-font-style: normal;
+    font-size: 12px;
+    transition-duration: 0.12s;
+    transition-property: background-color, border-color;
+    cursor: link;
+}
+
+.viah-root .viah-btn:hover {
+    background-color: var(--hover);
+    border-color: var(--border-strong);
+}
+
+.viah-root .viah-btn:active {
+    background-color: var(--surface-2);
+}
+
+.viah-root .viah-btn:disabled {
+    opacity: 0.4;
+}
+
+.viah-root .viah-btn.primary {
+    background-color: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-text);
+    -unity-font-style: bold;
+}
+
+.viah-root .viah-btn.primary:hover {
+    background-color: var(--accent-hover);
+    border-color: var(--accent-hover);
+}
+
+.viah-root .viah-btn.ghost {
+    background-color: rgba(0, 0, 0, 0);
+    border-color: rgba(0, 0, 0, 0);
+    color: var(--text-dim);
+}
+
+.viah-root .viah-btn.ghost:hover {
+    background-color: var(--surface-3);
+    color: var(--text);
+}
+
+.viah-root .viah-btn.danger {
+    color: var(--danger);
+    border-color: var(--border);
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.viah-root .viah-btn.danger:hover {
+    background-color: var(--danger-soft);
+    border-color: var(--danger);
+}
+
+.viah-root .viah-btn.big {
+    height: 34px;
+    padding: 0 18px;
+    font-size: 13px;
+}
+
+.viah-root .viah-btn.small {
+    height: 22px;
+    min-width: 22px;
+    padding: 0 8px;
+    font-size: 11px;
+    border-radius: 5px;
+}
+
+.viah-root .viah-btn.viah-icon-btn {
+    padding: 0;
+    width: 28px;
+}
+
+.viah-root .viah-btn.small.viah-icon-btn {
+    width: 22px;
+}
+
+.viah-btn .viah-icon {
+    margin-right: 6px;
+}
+
+.viah-btn.viah-icon-btn .viah-icon {
+    margin-right: 0;
+}
+
+.viah-root .viah-btn Label {
+    color: var(--text);
+}
+
+.viah-root .viah-btn.primary Label {
+    color: var(--accent-text);
+    -unity-font-style: bold;
+}
+
+.viah-root .viah-btn.ghost Label {
+    color: var(--text-dim);
+}
+
+.viah-btn-group {
+    flex-direction: row;
+    align-items: center;
+}
+
+.viah-btn-group > .viah-btn {
+    margin-right: 6px;
+}
+
+/* ───────────────────────── 入力 ───────────────────────── */
+
+.viah-textfield {
+    position: relative;
+    flex-grow: 1;
+}
+
+.viah-root .viah-input {
+    margin: 0;
+    flex-grow: 1;
+}
+
+.viah-root .viah-input > .unity-base-text-field__input,
+.viah-root .viah-tag-input > .unity-base-text-field__input,
+.viah-root .viah-ver-digit > .unity-base-text-field__input {
+    background-color: var(--input);
+    border-color: var(--border-strong);
+    border-width: 1px;
+    border-radius: 6px;
+    color: var(--text);
+    padding: 0 8px;
+    min-height: 28px;
+    font-size: 12px;
+}
+
+.viah-root .viah-input:focus > .unity-base-text-field__input,
+.viah-root .viah-ver-digit:focus > .unity-base-text-field__input {
+    border-color: var(--accent);
+}
+
+.viah-root .viah-input.big > .unity-base-text-field__input {
+    min-height: 36px;
+    font-size: 15px;
+    padding: 0 12px;
+}
+
+.viah-root .viah-input.is-error > .unity-base-text-field__input {
+    border-color: var(--danger);
+}
+
+.viah-placeholder {
+    position: absolute;
+    left: 10px;
+    top: 0;
+    bottom: 0;
+    -unity-text-align: middle-left;
+    color: var(--text-faint);
+}
+
+.viah-root Label.viah-placeholder {
+    color: var(--text-faint);
+}
+
+.viah-textfield.big .viah-placeholder {
+    left: 14px;
+    font-size: 15px;
+}
+
+.viah-field-label {
+    -unity-font-style: bold;
+    margin-bottom: 6px;
+}
+
+.viah-field-help {
+    margin-top: 6px;
+    white-space: normal;
+}
+
+.viah-root Label.viah-msg-error { color: var(--danger); }
+.viah-root Label.viah-msg-warn { color: var(--warn); }
+.viah-root Label.viah-msg-ok { color: var(--success); }
+
+/* ポップアップ */
+.viah-root .unity-base-popup-field {
+    margin: 0;
+}
+
+.viah-root .unity-base-popup-field__input {
+    min-height: 28px;
+    border-radius: 6px;
+    background-color: var(--surface-3);
+    border-color: var(--border-strong);
+}
+
+/* パス表示 */
+.viah-path-pill {
+    flex-direction: row;
+    align-items: center;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 6px;
+    background-color: var(--input);
+    border-width: 1px;
+    border-color: var(--border);
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow: hidden;
+}
+
+.viah-path-pill.is-hover {
+    border-color: var(--accent);
+    background-color: var(--accent-soft);
+}
+
+.viah-path-pill > Label {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    flex-shrink: 1;
+}
+
+/* ───────────────────────── スイッチ ───────────────────────── */
+
+.viah-switch {
+    flex-direction: row;
+    align-items: center;
+    cursor: link;
+}
+
+.viah-switch-track {
+    width: 30px;
+    height: 16px;
+    border-radius: 8px;
+    background-color: var(--surface-3);
+    border-width: 1px;
+    border-color: var(--border-strong);
+    margin-right: 8px;
+    flex-shrink: 0;
+    transition-duration: 0.15s;
+    transition-property: background-color;
+}
+
+.viah-switch-knob {
+    position: absolute;
+    left: 1px;
+    top: 1px;
+    width: 12px;
+    height: 12px;
+    border-radius: 6px;
+    background-color: var(--text-dim);
+    transition-duration: 0.15s;
+    transition-property: left, background-color;
+}
+
+.viah-switch.is-on .viah-switch-track {
+    background-color: var(--accent);
+    border-color: var(--accent);
+}
+
+.viah-switch.is-on .viah-switch-knob {
+    left: 15px;
+    background-color: #ffffff;
+}
+
+/* ───────────────────────── チェックボックス・矢印 ───────────────────────── */
+
+.viah-check {
+    width: 15px;
+    height: 15px;
+    border-radius: 4px;
+    border-width: 1.5px;
+    border-color: var(--border-strong);
+    background-color: var(--input);
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    transition-duration: 0.1s;
+    transition-property: background-color, border-color;
+}
+
+.viah-check-mark {
+    width: 5px;
+    height: 9px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-color: #ffffff;
+    rotate: 45deg;
+    margin-top: -2px;
+    display: none;
+}
+
+.viah-check-dash {
+    width: 7px;
+    height: 2px;
+    background-color: #ffffff;
+    display: none;
+}
+
+.viah-check.is-on,
+.viah-check.is-partial {
+    background-color: var(--accent);
+    border-color: var(--accent);
+}
+
+.viah-check.is-on .viah-check-mark {
+    display: flex;
+}
+
+.viah-check.is-partial .viah-check-dash {
+    display: flex;
+}
+
+.viah-check.is-locked {
+    background-color: var(--surface-3);
+    border-color: var(--border-strong);
+}
+
+.viah-check.is-locked .viah-check-mark {
+    border-color: var(--text-dim);
+}
+
+.viah-arrow {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    cursor: link;
+}
+
+.viah-arrow-glyph {
+    width: 6px;
+    height: 6px;
+    border-right-width: 1.5px;
+    border-bottom-width: 1.5px;
+    border-color: var(--text-dim);
+    rotate: -45deg;
+    transition-duration: 0.12s;
+    transition-property: rotate;
+}
+
+.viah-arrow.is-open .viah-arrow-glyph {
+    rotate: 45deg;
+    margin-top: -3px;
+}
+
+.viah-arrow.is-empty .viah-arrow-glyph {
+    display: none;
+}
+
+/* ───────────────────────── バッジ・タグ ───────────────────────── */
+
+.viah-badge {
+    height: 16px;
+    padding: 0 5px;
+    border-radius: 4px;
+    font-size: 10px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin-left: 6px;
+    flex-shrink: 0;
+    background-color: var(--surface-3);
+}
+
+.viah-root Label.viah-badge { color: var(--text-dim); }
+.viah-root Label.viah-badge.auto { color: var(--auto); background-color: var(--auto-soft); }
+.viah-root Label.viah-badge.ext { color: var(--ext); background-color: var(--ext-soft); }
+.viah-root Label.viah-badge.rule { color: var(--accent); background-color: var(--accent-soft); }
+.viah-root Label.viah-badge.new { color: var(--success); background-color: var(--success-soft); }
+.viah-root Label.viah-badge.warn { color: var(--warn); background-color: var(--warn-soft); }
+.viah-root Label.viah-badge.danger { color: var(--danger); background-color: var(--danger-soft); }
+.viah-root Label.viah-badge.done { color: var(--success); background-color: var(--success-soft); }
+
+.viah-tag-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.viah-tag {
+    flex-direction: row;
+    align-items: center;
+    height: 20px;
+    padding: 0 4px 0 8px;
+    border-radius: 10px;
+    background-color: var(--accent-soft);
+    margin: 2px 4px 2px 0;
+}
+
+.viah-tag.readonly {
+    padding: 0 8px;
+}
+
+.viah-root .viah-tag Label {
+    color: var(--accent);
+    font-size: 11px;
+}
+
+.viah-tag-x {
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    margin-left: 2px;
+    -unity-text-align: middle-center;
+    font-size: 11px;
+    cursor: link;
+}
+
+.viah-root Label.viah-tag-x {
+    color: var(--accent);
+}
+
+.viah-tag-x:hover {
+    background-color: var(--accent-soft);
+}
+
+.viah-tagfield {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    min-height: 32px;
+    padding: 2px 6px;
+    border-radius: 6px;
+    border-width: 1px;
+    border-color: var(--border-strong);
+    background-color: var(--input);
+}
+
+.viah-tagfield.is-focus {
+    border-color: var(--accent);
+}
+
+.viah-tag-input-wrap {
+    flex-grow: 1;
+    min-width: 140px;
+    position: relative;
+    height: 24px;
+}
+
+.viah-root .viah-tag-input {
+    margin: 0;
+    flex-grow: 1;
+}
+
+.viah-root .viah-tag-input > .unity-base-text-field__input {
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    min-height: 24px;
+    padding: 0 4px;
+}
+
+.viah-tagfield .viah-placeholder {
+    left: 5px;
+}
+
+/* ───────────────────────── ヘッダー ───────────────────────── */
+
+.viah-header {
+    flex-direction: row;
+    align-items: center;
+    height: 48px;
+    padding: 0 14px;
+    background-color: var(--surface);
+    border-bottom-width: 1px;
+    border-color: var(--border);
+    flex-shrink: 0;
+}
+
+.viah-brand {
+    flex-direction: row;
+    align-items: center;
+    width: 186px;
+    flex-shrink: 0;
+    cursor: link;
+}
+
+.viah-logo-img {
+    width: 28px;
+    height: 28px;
+    margin-right: 9px;
+    flex-shrink: 0;
+}
+
+.viah-root .viah-btn.viah-settings-btn.is-active {
+    background-color: var(--accent-soft);
+    color: var(--accent);
+}
+
+.viah-root .viah-btn.viah-settings-btn.is-active Label {
+    color: var(--accent);
+    -unity-font-style: bold;
+}
+
+.viah-brand-title {
+    -unity-font-style: bold;
+    font-size: 13px;
+}
+
+.viah-root Label.viah-brand-sub {
+    font-size: 10px;
+    color: var(--text-faint);
+}
+
+.viah-search {
+    flex-direction: row;
+    align-items: center;
+    flex-grow: 1;
+    max-width: 520px;
+    height: 30px;
+    padding: 0 10px;
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: var(--border);
+    background-color: var(--input);
+}
+
+.viah-search.is-focus {
+    border-color: var(--accent);
+}
+
+.viah-search .viah-textfield {
+    margin-left: 6px;
+}
+
+.viah-root .viah-search .viah-input > .unity-base-text-field__input {
+    border-width: 0;
+    background-color: rgba(0, 0, 0, 0);
+    min-height: 26px;
+    padding: 0 2px;
+}
+
+.viah-search .viah-placeholder {
+    left: 4px;
+}
+
+.viah-search-pop {
+    position: absolute;
+    top: 44px;
+    left: 196px;
+    width: 520px;
+    max-height: 420px;
+    background-color: var(--surface-2);
+    border-width: 1px;
+    border-color: var(--border-strong);
+    border-radius: 10px;
+    padding: 6px;
+    display: none;
+}
+
+.viah-search-pop.is-open {
+    display: flex;
+}
+
+.viah-search-item {
+    flex-direction: row;
+    align-items: center;
+    padding: 7px 10px;
+    border-radius: 6px;
+    cursor: link;
+}
+
+.viah-search-item:hover,
+.viah-search-item.is-active {
+    background-color: var(--accent-soft);
+}
+
+.viah-search-empty {
+    padding: 14px;
+    white-space: normal;
+}
+
+/* ───────────────────────── サイドバー ───────────────────────── */
+
+.viah-body {
+    flex-direction: row;
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.viah-sidebar {
+    width: 182px;
+    flex-shrink: 0;
+    padding: 12px 10px;
+    background-color: var(--surface);
+    border-right-width: 1px;
+    border-color: var(--border);
+}
+
+.viah-nav-item {
+    flex-direction: row;
+    align-items: center;
+    height: 36px;
+    padding: 0 10px;
+    margin-bottom: 3px;
+    border-radius: 7px;
+    cursor: link;
+    transition-duration: 0.1s;
+    transition-property: background-color;
+}
+
+.viah-nav-item:hover {
+    background-color: var(--surface-3);
+}
+
+.viah-nav-item.is-active {
+    background-color: var(--accent-soft);
+}
+
+.viah-root .viah-nav-item Label {
+    margin-left: 10px;
+    color: var(--text-dim);
+    font-size: 12px;
+}
+
+.viah-root .viah-nav-item.is-active Label {
+    color: var(--accent);
+    -unity-font-style: bold;
+}
+
+.viah-nav-num {
+    width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    background-color: var(--surface-3);
+    -unity-text-align: middle-center;
+    font-size: 10px;
+    -unity-font-style: bold;
+}
+
+.viah-root Label.viah-nav-num {
+    margin-left: 0;
+    color: var(--text-dim);
+}
+
+.viah-root .viah-nav-item.is-active Label.viah-nav-num {
+    background-color: var(--accent);
+    color: #ffffff;
+}
+
+.viah-nav-section {
+    margin: 14px 10px 6px 10px;
+    font-size: 10px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+}
+
+.viah-root Label.viah-nav-section {
+    color: var(--text-faint);
+}
+
+.viah-sidebar-footer {
+    flex-grow: 1;
+    justify-content: flex-end;
+}
+
+/* ───────────────────────── ページ ───────────────────────── */
+
+.viah-content {
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.viah-page-host {
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.viah-page {
+    flex-grow: 1;
+    padding: 22px 26px 26px 26px;
+}
+
+.viah-scroll {
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.viah-root .viah-scroll-content {
+    padding: 22px 26px 30px 26px;
+}
+
+.viah-page-head {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.viah-page-title {
+    font-size: 19px;
+    -unity-font-style: bold;
+}
+
+.viah-page-sub {
+    margin-bottom: 16px;
+    white-space: normal;
+}
+
+.viah-root Label.viah-page-sub {
+    color: var(--text-dim);
+}
+
+.viah-back {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 10px;
+    cursor: link;
+}
+
+.viah-root .viah-back Label {
+    color: var(--text-dim);
+}
+
+.viah-back:hover Label {
+    color: var(--accent);
+}
+
+/* 2 列 */
+.viah-split {
+    flex-direction: row;
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.viah-list-pane {
+    width: 260px;
+    flex-shrink: 0;
+    border-right-width: 1px;
+    border-color: var(--border);
+    background-color: var(--surface);
+    padding: 14px 10px 10px 10px;
+}
+
+.viah-list-pane-head {
+    flex-direction: row;
+    align-items: center;
+    margin: 0 4px 10px 4px;
+}
+
+.viah-list-title {
+    -unity-font-style: bold;
+    font-size: 13px;
+    flex-grow: 1;
+}
+
+.viah-detail-pane {
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.viah-list-item {
+    padding: 9px 10px;
+    border-radius: 7px;
+    margin-bottom: 2px;
+    cursor: link;
+    border-width: 1px;
+    border-color: rgba(0, 0, 0, 0);
+}
+
+.viah-list-item:hover {
+    background-color: var(--surface-3);
+}
+
+.viah-list-item.is-active {
+    background-color: var(--accent-soft);
+    border-color: var(--accent);
+}
+
+.viah-list-item-title {
+    -unity-font-style: bold;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.viah-list-item-sub {
+    font-size: 11px;
+    margin-top: 2px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.viah-root Label.viah-list-item-sub {
+    color: var(--text-faint);
+}
+
+.viah-list-empty {
+    padding: 16px 8px;
+    white-space: normal;
+    -unity-text-align: upper-center;
+}
+
+/* ───────────────────────── カード・セクション ───────────────────────── */
+
+.viah-card {
+    background-color: var(--surface);
+    border-width: 1px;
+    border-color: var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+}
+
+.viah-card.flat {
+    background-color: var(--surface-2);
+}
+
+.viah-card.accent {
+    border-color: var(--accent);
+}
+
+.viah-section-head {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.viah-section-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 11px;
+    background-color: var(--accent);
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+    font-size: 11px;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.viah-root Label.viah-section-num {
+    color: #ffffff;
+}
+
+.viah-section-num.is-done {
+    background-color: var(--success);
+}
+
+.viah-section-title {
+    font-size: 13px;
+    -unity-font-style: bold;
+}
+
+.viah-kv {
+    flex-direction: row;
+    margin-bottom: 6px;
+}
+
+.viah-kv-key {
+    width: 110px;
+    flex-shrink: 0;
+}
+
+.viah-root Label.viah-kv-key {
+    color: var(--text-faint);
+}
+
+.viah-kv-value {
+    flex-grow: 1;
+    flex-shrink: 1;
+    white-space: normal;
+}
+
+.viah-footer-bar {
+    flex-direction: row;
+    align-items: center;
+    padding: 12px 26px;
+    border-top-width: 1px;
+    border-color: var(--border);
+    background-color: var(--surface);
+    flex-shrink: 0;
+}
+
+/* ───────────────────────── ヒント ───────────────────────── */
+
+.viah-hint {
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border-left-width: 3px;
+    border-color: var(--accent);
+    background-color: var(--accent-soft);
+    margin-bottom: 14px;
+}
+
+.viah-hint.warn {
+    border-color: var(--warn);
+    background-color: var(--warn-soft);
+}
+
+.viah-hint.success {
+    border-color: var(--success);
+    background-color: var(--success-soft);
+}
+
+.viah-hint.danger {
+    border-color: var(--danger);
+    background-color: var(--danger-soft);
+}
+
+.viah-hint-body {
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin-left: 8px;
+}
+
+.viah-hint-title {
+    -unity-font-style: bold;
+    margin-bottom: 2px;
+    white-space: normal;
+}
+
+.viah-hint-text {
+    white-space: normal;
+}
+
+.viah-root Label.viah-hint-text {
+    color: var(--text-dim);
+}
+
+.viah-hint-close {
+    width: 18px;
+    height: 18px;
+    -unity-text-align: middle-center;
+    border-radius: 4px;
+    cursor: link;
+}
+
+.viah-root Label.viah-hint-close {
+    color: var(--text-faint);
+}
+
+.viah-hint-close:hover {
+    background-color: var(--surface-3);
+}
+
+/* ───────────────────────── ホーム（何をしたいですか？） ───────────────────────── */
+
+.viah-task-group {
+    margin-bottom: 18px;
+}
+
+.viah-task-group-head {
+    flex-direction: row;
+    align-items: center;
+    margin: 0 4px 6px 4px;
+}
+
+.viah-task-group-head .viah-icon {
+    margin-right: 8px;
+}
+
+.viah-task-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: 0 -4px;
+}
+
+.viah-task-cell {
+    width: 33.333%;
+    padding: 4px;
+}
+
+.viah-root.compact .viah-task-cell {
+    width: 50%;
+}
+
+.viah-task {
+    flex-grow: 1;
+    flex-direction: row;
+    align-items: center;
+    padding: 12px 12px 12px 14px;
+    border-radius: 9px;
+    border-width: 1px;
+    border-color: var(--border);
+    background-color: var(--surface);
+    cursor: link;
+    transition-duration: 0.12s;
+    transition-property: border-color, background-color;
+}
+
+.viah-task:hover {
+    border-color: var(--accent);
+    background-color: var(--surface-2);
+}
+
+.viah-task.concept {
+    border-color: var(--accent-soft);
+    background-color: var(--accent-soft);
+}
+
+.viah-task.concept:hover {
+    border-color: var(--accent);
+}
+
+.viah-task-body {
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.viah-task-title {
+    -unity-font-style: bold;
+    white-space: normal;
+    margin-bottom: 3px;
+}
+
+.viah-root .viah-task.concept Label.viah-task-title {
+    color: var(--accent);
+}
+
+.viah-task-text {
+    white-space: normal;
+    font-size: 11px;
+}
+
+.viah-root Label.viah-task-text {
+    color: var(--text-dim);
+}
+
+.viah-task .viah-arrow {
+    margin-left: 6px;
+    opacity: 0.6;
+}
+
+.viah-task:hover .viah-arrow {
+    opacity: 1;
+}
+
+.viah-recent-row {
+    flex-direction: row;
+    align-items: stretch;
+    margin: 6px -6px 0 -6px;
+}
+
+.viah-root.compact .viah-recent-row {
+    flex-direction: column;
+}
+
+.viah-recent {
+    flex-grow: 1;
+    flex-basis: 0;
+    padding: 14px 14px 10px 14px;
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: var(--border);
+    background-color: var(--surface);
+    margin: 0 6px 12px 6px;
+}
+
+/* ───────────────────────── ガイド ───────────────────────── */
+
+.viah-guide {
+    max-width: 980px;
+}
+
+.viah-crumb {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.viah-root Label.viah-crumb-item {
+    color: var(--text-faint);
+    font-size: 11px;
+}
+
+.viah-guide-para {
+    white-space: normal;
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+.viah-guide-step {
+    flex-direction: row;
+    align-items: flex-start;
+    margin-bottom: 22px;
+}
+
+.viah-guide-step-num {
+    width: 26px;
+    height: 26px;
+    border-radius: 13px;
+    background-color: var(--accent);
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+    font-size: 12px;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.viah-root Label.viah-guide-step-num {
+    color: #ffffff;
+}
+
+.viah-guide-step-body {
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.viah-guide-text {
+    white-space: normal;
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+.viah-guide-shot {
+    margin-top: 10px;
+    border-width: 1px;
+    border-color: var(--border-strong);
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: var(--input);
+    align-self: flex-start;
+}
+
+.viah-guide-shot-img {
+    flex-grow: 1;
+}
+
+.viah-guide-links {
+    border-width: 1px;
+    border-color: var(--border);
+    border-radius: 9px;
+    background-color: var(--surface);
+    overflow: hidden;
+}
+
+.viah-guide-link {
+    flex-direction: row;
+    align-items: center;
+    padding: 10px 12px;
+    border-bottom-width: 1px;
+    border-color: var(--border);
+    cursor: link;
+}
+
+.viah-guide-link:hover {
+    background-color: var(--accent-soft);
+}
+
+.viah-guide-link .viah-arrow {
+    margin-left: 8px;
+}
+
+.viah-guide-action {
+    flex-direction: row;
+    align-items: center;
+    padding: 14px 16px;
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: var(--accent);
+    background-color: var(--accent-soft);
+    margin: 4px 0 18px 0;
+}
+
+/* ───────────────────────── 設定 ───────────────────────── */
+
+.viah-setting-row {
+    flex-direction: row;
+    align-items: center;
+    padding: 9px 0;
+    border-bottom-width: 1px;
+    border-color: var(--border);
+}
+
+.viah-swatch-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.viah-swatch-item {
+    align-items: center;
+    width: 64px;
+    padding: 8px 4px 6px 4px;
+    margin: 0 6px 6px 0;
+    border-radius: 8px;
+    border-width: 1.5px;
+    border-color: rgba(0, 0, 0, 0);
+    cursor: link;
+}
+
+.viah-swatch-item:hover {
+    background-color: var(--surface-2);
+}
+
+.viah-swatch-item.is-on {
+    border-color: var(--accent);
+    background-color: var(--accent-soft);
+}
+
+.viah-swatch {
+    width: 26px;
+    height: 26px;
+    border-radius: 13px;
+    margin-bottom: 5px;
+    border-width: 2px;
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.viah-theme-sample {
+    height: 52px;
+    border-radius: 6px;
+    border-width: 1px;
+    border-color: var(--border-strong);
+    padding: 0 0 6px 0;
+    overflow: hidden;
+}
+
+.viah-theme-sample-bar {
+    height: 14px;
+    margin-bottom: 8px;
+}
+
+.viah-theme-sample-line {
+    height: 4px;
+    width: 70%;
+    border-radius: 2px;
+    margin: 0 0 6px 10px;
+    opacity: 0.8;
+}
+
+.viah-theme-sample-line.short {
+    width: 40%;
+    opacity: 0.45;
+}
+
+.viah-bullet {
+    margin-top: 3px;
+}
+
+.viah-about-logo {
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+}
+
+.viah-card.warn-card {
+    border-color: var(--warn);
+    background-color: var(--warn-soft);
+}
+/* ───────────────────────── ウィザードのステップ表示 ───────────────────────── */
+
+.viah-stepper {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.viah-stepper-item {
+    flex-direction: row;
+    align-items: center;
+    cursor: link;
+}
+
+.viah-stepper-item.is-disabled {
+    cursor: arrow;
+    opacity: 0.5;
+}
+
+.viah-stepper-dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 11px;
+    border-width: 1.5px;
+    border-color: var(--border-strong);
+    -unity-text-align: middle-center;
+    font-size: 11px;
+    -unity-font-style: bold;
+}
+
+.viah-root Label.viah-stepper-dot {
+    color: var(--text-dim);
+}
+
+.viah-stepper-label {
+    margin-left: 7px;
+}
+
+.viah-root Label.viah-stepper-label {
+    color: var(--text-dim);
+}
+
+.viah-stepper-item.is-active .viah-stepper-dot {
+    background-color: var(--accent);
+    border-color: var(--accent);
+}
+
+.viah-root .viah-stepper-item.is-active Label.viah-stepper-dot {
+    color: #ffffff;
+}
+
+.viah-root .viah-stepper-item.is-active Label.viah-stepper-label {
+    color: var(--text);
+    -unity-font-style: bold;
+}
+
+.viah-stepper-item.is-done .viah-stepper-dot {
+    background-color: var(--success-soft);
+    border-color: var(--success);
+}
+
+.viah-root .viah-stepper-item.is-done Label.viah-stepper-dot {
+    color: var(--success);
+}
+
+.viah-stepper-line {
+    flex-grow: 1;
+    height: 1.5px;
+    min-width: 16px;
+    margin: 0 10px;
+    background-color: var(--border-strong);
+}
+
+/* ───────────────────────── 選択カード ───────────────────────── */
+
+.viah-choice-row {
+    flex-direction: row;
+    align-items: stretch;
+    margin: 0 -6px;
+}
+
+.viah-choice {
+    flex-grow: 1;
+    flex-basis: 0;
+    padding: 16px 18px;
+    border-radius: 10px;
+    border-width: 1.5px;
+    border-color: var(--border);
+    background-color: var(--surface);
+    margin: 0 6px;
+    cursor: link;
+    transition-duration: 0.12s;
+    transition-property: border-color, background-color;
+}
+
+.viah-choice:hover {
+    border-color: var(--border-strong);
+    background-color: var(--surface-2);
+}
+
+.viah-choice.is-on {
+    border-color: var(--accent);
+    background-color: var(--accent-soft);
+}
+
+.viah-choice-head {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.viah-radio {
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    border-width: 1.5px;
+    border-color: var(--border-strong);
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+}
+
+.viah-radio-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background-color: var(--accent);
+    display: none;
+}
+
+.viah-choice.is-on .viah-radio {
+    border-color: var(--accent);
+}
+
+.viah-choice.is-on .viah-radio-dot {
+    display: flex;
+}
+
+.viah-choice-title {
+    font-size: 14px;
+    -unity-font-style: bold;
+}
+
+.viah-choice-text {
+    white-space: normal;
+}
+
+.viah-root Label.viah-choice-text {
+    color: var(--text-dim);
+}
+
+/* ───────────────────────── ドロップゾーン ───────────────────────── */
+
+.viah-dropzone {
+    align-items: center;
+    justify-content: center;
+    padding: 26px 16px;
+    border-radius: 12px;
+    border-width: 2px;
+    border-color: var(--border-strong);
+    background-color: var(--surface);
+    transition-duration: 0.12s;
+    transition-property: border-color, background-color;
+}
+
+.viah-dropzone.is-hover {
+    border-color: var(--accent);
+    background-color: var(--accent-soft);
+}
+
+.viah-dropzone-icon {
+    width: 34px;
+    height: 34px;
+    margin-bottom: 8px;
+    opacity: 0.8;
+}
+
+.viah-dropzone-title {
+    font-size: 14px;
+    -unity-font-style: bold;
+    margin-bottom: 4px;
+}
+
+.viah-dropzone-text {
+    white-space: normal;
+    -unity-text-align: middle-center;
+}
+
+.viah-root Label.viah-dropzone-text {
+    color: var(--text-dim);
+}
+
+.viah-seed-item {
+    flex-direction: row;
+    align-items: center;
+    padding: 7px 10px;
+    border-radius: 7px;
+    background-color: var(--surface);
+    border-width: 1px;
+    border-color: var(--border);
+    margin-top: 6px;
+}
+
+/* ───────────────────────── ツリー ───────────────────────── */
+
+.viah-tree {
+    border-width: 1px;
+    border-color: var(--border);
+    border-radius: 8px;
+    background-color: var(--input);
+    padding: 4px 0;
+}
+
+.viah-tree-row {
+    flex-direction: row;
+    align-items: center;
+    height: 26px;
+    padding-right: 8px;
+    padding-left: 6px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-color: rgba(0, 0, 0, 0);
+}
+
+.viah-tree-row:hover {
+    background-color: var(--surface-2);
+}
+
+.viah-tree-row.is-selected {
+    background-color: var(--accent-soft);
+}
+
+.viah-tree-row.is-click {
+    cursor: link;
+}
+
+.viah-tree-row.drop-before {
+    border-top-color: var(--accent);
+}
+
+.viah-tree-row.drop-after {
+    border-bottom-color: var(--accent);
+}
+
+.viah-tree-row.drop-inside {
+    background-color: var(--accent-soft);
+}
+
+.viah-tree-row.is-dragging {
+    opacity: 0.4;
+}
+
+.viah-tree-row .viah-check {
+    margin-left: 2px;
+    margin-right: 7px;
+}
+
+.viah-tree-row .viah-icon {
+    margin-right: 6px;
+}
+
+.viah-tree-name {
+    flex-shrink: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.viah-tree-row.is-off .viah-tree-name {
+    opacity: 0.55;
+}
+
+.viah-tree-row.is-root .viah-tree-name {
+    -unity-font-style: bold;
+}
+
+.viah-tree-prefix {
+    font-size: 11px;
+}
+
+.viah-root Label.viah-tree-prefix {
+    color: var(--text-faint);
+}
+
+.viah-tree-reason {
+    margin-left: 10px;
+    font-size: 10px;
+    flex-shrink: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    -unity-text-align: middle-right;
+}
+
+.viah-root Label.viah-tree-reason {
+    color: var(--text-faint);
+}
+
+.viah-tree-handle {
+    width: 14px;
+    height: 20px;
+    margin-right: 4px;
+    align-items: center;
+    justify-content: center;
+    cursor: move-arrow;
+    opacity: 0.5;
+}
+
+.viah-tree-handle:hover {
+    opacity: 1;
+}
+
+.viah-tree-handle-dots {
+    width: 6px;
+    height: 10px;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-color: var(--text-dim);
+}
+
+.viah-row-actions {
+    flex-direction: row;
+    align-items: center;
+    display: none;
+    margin-left: 6px;
+}
+
+.viah-tree-row:hover .viah-row-actions,
+.viah-tree-row.is-selected .viah-row-actions {
+    display: flex;
+}
+
+.viah-root .viah-tree-rename {
+    margin: 0;
+    flex-grow: 1;
+    max-width: 280px;
+}
+
+.viah-root .viah-tree-rename > .unity-base-text-field__input {
+    min-height: 22px;
+    background-color: var(--input);
+    border-color: var(--accent);
+    border-radius: 4px;
+}
+
+/* 仮想化リスト（アセットツリー） */
+.viah-asset-list {
+    flex-grow: 1;
+    border-width: 1px;
+    border-color: var(--border);
+    border-radius: 8px;
+    background-color: var(--input);
+}
+
+.viah-asset-list .unity-list-view__item {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.viah-asset-list .unity-list-view__item:hover {
+    background-color: var(--surface-2);
+}
+
+.viah-asset-row {
+    flex-direction: row;
+    align-items: center;
+    height: 24px;
+    padding: 0 8px 0 6px;
+    cursor: link;
+}
+
+.viah-asset-row.is-anchor {
+    background-color: var(--accent-soft);
+}
+
+.viah-asset-row.is-off .viah-tree-name {
+    opacity: 0.6;
+}
+
+.viah-asset-row.is-group .viah-tree-name {
+    -unity-font-style: bold;
+}
+
+.viah-asset-row .viah-check {
+    margin-right: 7px;
+}
+
+.viah-asset-row .viah-icon {
+    margin-right: 6px;
+}
+
+.viah-ping {
+    display: none;
+    margin-left: 6px;
+}
+
+.viah-asset-row:hover .viah-ping {
+    display: flex;
+}
+
+.viah-toolbar {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.viah-legend {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+
+.viah-legend-item {
+    flex-direction: row;
+    align-items: center;
+    margin-right: 14px;
+}
+
+.viah-legend-item .viah-badge {
+    margin-left: 0;
+    margin-right: 5px;
+}
+
+/* ───────────────────────── セグメント ───────────────────────── */
+
+.viah-seg {
+    flex-direction: row;
+    align-items: center;
+    padding: 3px;
+    border-radius: 8px;
+    background-color: var(--surface-3);
+}
+
+.viah-seg-item {
+    flex-shrink: 0;
+    white-space: nowrap;
+    height: 26px;
+    padding: 0 14px;
+    border-radius: 6px;
+    -unity-text-align: middle-center;
+    cursor: link;
+    transition-duration: 0.1s;
+    transition-property: background-color;
+}
+
+.viah-root Label.viah-seg-item {
+    color: var(--text-dim);
+}
+
+.viah-seg-item:hover {
+    background-color: var(--hover);
+}
+
+.viah-seg-item.is-on {
+    background-color: var(--surface-2);
+}
+
+.viah-root Label.viah-seg-item.is-on {
+    color: var(--text);
+    -unity-font-style: bold;
+}
+
+.viah-seg.small .viah-seg-item {
+    height: 22px;
+    padding: 0 10px;
+    font-size: 11px;
+}
+
+/* ───────────────────────── エクスポートのバナー ───────────────────────── */
+
+.viah-banner {
+    padding: 18px 20px;
+    border-radius: 12px;
+    background-color: var(--surface);
+    border-width: 1px;
+    border-color: var(--border);
+    margin-bottom: 14px;
+}
+
+.viah-banner-line {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.viah-banner-name {
+    font-size: 22px;
+    -unity-font-style: bold;
+    margin-right: 6px;
+}
+
+.viah-joint {
+    font-size: 16px;
+    margin: 0 3px;
+    -unity-font-style: bold;
+}
+
+.viah-root Label.viah-joint {
+    color: var(--text-faint);
+}
+
+.viah-joint.is-hidden {
+    display: none;
+}
+
+.viah-chip {
+    height: 30px;
+    padding: 0 12px;
+    border-radius: 15px;
+    border-width: 1.5px;
+    border-color: var(--border-strong);
+    background-color: rgba(0, 0, 0, 0);
+    -unity-text-align: middle-center;
+    font-size: 13px;
+    cursor: link;
+    margin: 3px 0;
+    transition-duration: 0.12s;
+    transition-property: background-color, border-color;
+}
+
+.viah-root Label.viah-chip {
+    color: var(--text-faint);
+}
+
+.viah-chip:hover {
+    border-color: var(--accent);
+}
+
+.viah-chip.is-on {
+    background-color: var(--accent);
+    border-color: var(--accent);
+}
+
+.viah-root Label.viah-chip.is-on {
+    color: #ffffff;
+    -unity-font-style: bold;
+}
+
+.viah-chip.debug.is-on {
+    background-color: var(--warn);
+    border-color: var(--warn);
+}
+
+.viah-root Label.viah-chip.debug.is-on {
+    color: #1b1b1b;
+}
+
+.viah-chip.small {
+    height: 24px;
+    padding: 0 10px;
+    border-radius: 12px;
+    font-size: 11px;
+}
+
+.viah-filename {
+    flex-direction: row;
+    align-items: center;
+    margin-top: 14px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background-color: var(--input);
+}
+
+.viah-filename-text {
+    font-size: 13px;
+    -unity-font-style: bold;
+    flex-shrink: 1;
+    white-space: normal;
+}
+
+.viah-ver-panel {
+    flex-direction: row;
+    align-items: center;
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background-color: var(--surface-2);
+    border-width: 1px;
+    border-color: var(--border);
+}
+
+/* ───────────────────────── バージョン ───────────────────────── */
+
+.viah-ver {
+    flex-direction: row;
+    align-items: center;
+}
+
+.viah-ver-prefix {
+    font-size: 16px;
+    -unity-font-style: bold;
+    margin-right: 6px;
+}
+
+.viah-ver-col {
+    align-items: center;
+}
+
+.viah-root .viah-ver-arrow {
+    width: 30px;
+    height: 16px;
+    min-width: 0;
+    padding: 0;
+    border-radius: 4px;
+    font-size: 8px;
+    border-width: 0;
+    background-color: var(--surface-3);
+}
+
+.viah-root .viah-ver-arrow:hover {
+    background-color: var(--accent);
+    color: #ffffff;
+}
+
+.viah-root .viah-ver-digit {
+    margin: 2px 0;
+    width: 30px;
+}
+
+.viah-root .viah-ver-digit > .unity-base-text-field__input {
+    min-height: 30px;
+    padding: 0;
+    font-size: 16px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.viah-ver-dot {
+    font-size: 18px;
+    -unity-font-style: bold;
+    margin: 0 3px;
+}
+
+.viah-ver.compact .viah-ver-prefix {
+    font-size: 11px;
+    margin-right: 4px;
+}
+
+.viah-root .viah-ver.compact .viah-ver-arrow {
+    width: 20px;
+    height: 10px;
+    font-size: 6px;
+}
+
+.viah-root .viah-ver.compact .viah-ver-digit {
+    width: 20px;
+    margin: 1px 0;
+}
+
+.viah-root .viah-ver.compact .viah-ver-digit > .unity-base-text-field__input {
+    min-height: 18px;
+    font-size: 11px;
+    border-radius: 4px;
+}
+
+.viah-ver.compact .viah-ver-dot {
+    font-size: 12px;
+    margin: 0 1px;
+}
+
+/* ───────────────────────── シーケンス ───────────────────────── */
+
+.viah-seq-row {
+    flex-direction: row;
+    align-items: center;
+    min-height: 46px;
+    padding: 4px 12px;
+    border-bottom-width: 1px;
+    border-color: var(--border);
+    cursor: link;
+}
+
+.viah-seq-row:hover {
+    background-color: var(--surface-2);
+}
+
+.viah-seq-row.is-on {
+    background-color: var(--accent-soft);
+}
+
+.viah-seq-row .viah-check {
+    margin-right: 12px;
+}
+
+.viah-seq-name {
+    width: 170px;
+    flex-shrink: 0;
+    -unity-font-style: bold;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.viah-seq-file {
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin-left: 14px;
+    font-size: 11px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.viah-root Label.viah-seq-file {
+    color: var(--text-faint);
+}
+
+.viah-seq-row.is-on Label.viah-seq-file {
+    color: var(--text-dim);
+}
+
+/* ───────────────────────── ファイル一覧（プレビュー） ───────────────────────── */
+
+.viah-file-row {
+    flex-direction: row;
+    align-items: center;
+    height: 22px;
+    padding: 0 6px;
+}
+
+.viah-file-row .viah-icon {
+    margin-right: 6px;
+}
+
+.viah-file-group {
+    margin-top: 8px;
+    margin-bottom: 2px;
+    -unity-font-style: bold;
+    font-size: 11px;
+}
+
+.viah-root Label.viah-file-group {
+    color: var(--text-dim);
+}
+
+/* ───────────────────────── トースト・ダイアログ ───────────────────────── */
+
+.viah-toast-layer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 18px;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.viah-toast {
+    flex-direction: row;
+    align-items: center;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background-color: var(--surface-2);
+    border-width: 1px;
+    border-color: var(--border-strong);
+    border-left-width: 4px;
+    border-left-color: var(--success);
+    opacity: 0;
+    translate: 0 10px;
+    transition-duration: 0.2s;
+    transition-property: opacity, translate;
+}
+
+.viah-toast.is-show {
+    opacity: 1;
+    translate: 0 0;
+}
+
+.viah-toast.warn {
+    border-left-color: var(--warn);
+}
+
+.viah-toast.danger {
+    border-left-color: var(--danger);
+}
+
+.viah-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.55);
+    align-items: center;
+    justify-content: center;
+}
+
+.viah-dialog {
+    width: 560px;
+    max-width: 90%;
+    max-height: 86%;
+    padding: 20px 22px;
+    border-radius: 12px;
+    background-color: var(--surface);
+    border-width: 1px;
+    border-color: var(--border-strong);
+}
+
+.viah-dialog-title {
+    font-size: 16px;
+    -unity-font-style: bold;
+    margin-bottom: 6px;
+}
+
+.viah-dialog-actions {
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 16px;
+}
+
+.viah-dialog-actions > .viah-btn {
+    margin-left: 8px;
+}
+
+.viah-check-item {
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 8px 10px;
+    border-radius: 7px;
+    background-color: var(--surface-2);
+    margin-top: 6px;
+}
+
+.viah-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    margin-top: 4px;
+    margin-right: 10px;
+    background-color: var(--success);
+    flex-shrink: 0;
+}
+
+.viah-status-dot.warn { background-color: var(--warn); }
+.viah-status-dot.danger { background-color: var(--danger); }
+.viah-status-dot.info { background-color: var(--accent); }
+
+/* 数値の大きい表示 */
+.viah-stat {
+    margin-right: 22px;
+}
+
+.viah-stat-num {
+    font-size: 18px;
+    -unity-font-style: bold;
+}
+
+.viah-stat-label {
+    font-size: 10px;
+}
+
+.viah-root Label.viah-stat-label {
+    color: var(--text-faint);
+}
+
+.viah-header-line {
+    border-color: var(--border);
+}
+
+.viah-seq-list {
+    border-color: var(--border);
+}
+
+
+/* ───────────────────────── 余白ユーティリティ（ボタン等の既定余白より優先） ───────────────────────── */
+
+.viah-root .viah-mt4 { margin-top: 4px; }
+.viah-root .viah-mt8 { margin-top: 8px; }
+.viah-root .viah-mt12 { margin-top: 12px; }
+.viah-root .viah-mt16 { margin-top: 16px; }
+.viah-root .viah-ml4 { margin-left: 4px; }
+.viah-root .viah-ml6 { margin-left: 6px; }
+.viah-root .viah-ml8 { margin-left: 8px; }
+.viah-root .viah-ml12 { margin-left: 12px; }
+.viah-root .viah-mr6 { margin-right: 6px; }
+.viah-root .viah-mr8 { margin-right: 8px; }
+.viah-root .viah-mb8 { margin-bottom: 8px; }
+/* ───────────────────────── 折り返し防止 ───────────────────────── */
+
+.viah-root .viah-btn {
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.viah-root .viah-btn Label,
+.viah-nav-label,
+.viah-chip,
+.viah-badge,
+.viah-kv-key,
+.viah-nowrap,
+.viah-section-title,
+.viah-list-title,
+.viah-stepper-label {
+    white-space: nowrap;
+}
+
+.viah-nowrap,
+.viah-kv-key,
+.viah-badge,
+.viah-chip {
+    flex-shrink: 0;
+}
+
+.viah-page > .viah-btn {
+    align-self: flex-start;
+}
+
+.viah-detail-pane {
+    min-width: 320px;
+}
+
+/* ───────────────────────── 狭いとき（ドッキング時など） ───────────────────────── */
+
+.viah-root.narrow .viah-sidebar {
+    width: 58px;
+    padding: 12px 8px;
+}
+
+.viah-root.narrow .viah-nav-item {
+    justify-content: center;
+    padding: 0;
+}
+
+.viah-root.narrow .viah-nav-label,
+.viah-root.narrow .viah-nav-section,
+.viah-root.narrow .viah-brand-text,
+.viah-root.narrow .viah-sidebar-footer .viah-btn Label {
+    display: none;
+}
+
+.viah-root.narrow .viah-brand {
+    width: 50px;
+}
+
+.viah-root.narrow .viah-sidebar-footer .viah-btn {
+    justify-content: center;
+}
+
+.viah-root.narrow .viah-sidebar-footer .viah-btn .viah-icon {
+    margin-right: 0;
+}
+
+.viah-root.narrow .viah-list-pane {
+    width: 220px;
+}
+
+.viah-root.compact .viah-list-pane {
+    width: 170px;
+}
+
+.viah-root.compact .viah-help-btn {
+    display: none;
+}
+
+.viah-root.compact .viah-scroll-content {
+    padding: 16px 14px 24px 14px;
+}
+
+.viah-root.compact .viah-choice-row {
+    flex-direction: column;
+}
+
+.viah-root.compact .viah-choice {
+    margin-bottom: 10px;
+}
+/* hints and toolbars keep their height (prevents overlap in short windows) */
+.viah-hint,
+.viah-toolbar,
+.viah-legend,
+.viah-stepper {
+    flex-shrink: 0;
+}
+
+.viah-asset-list {
+    min-height: 140px;
+}
+
+.viah-tag {
+    transition-duration: 0.2s;
+    transition-property: background-color, scale;
+}
+
+.viah-tag.is-flash {
+    background-color: var(--warn-soft);
+    scale: 1.08 1.08;
+}
