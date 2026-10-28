@@ -163,9 +163,10 @@ namespace VInc.AvatarHub
                 {
                     if (prop.propertyType != SerializedPropertyType.ObjectReference) continue;
                     if (prop.name == "m_Script" || prop.name == "m_GameObject" || prop.name == "m_PrefabInstance" || prop.name == "m_PrefabAsset" || prop.name == "m_CorrespondingSourceObject") continue;
-                    var obj = prop.objectReferenceValue;
-                    if (obj == null) continue;
-                    var path = AssetDatabase.GetAssetPath(obj);
+                    // 参照先は読み込まずにパスだけ調べる（マテリアル・テクスチャ・メッシュをメモリに上げない）
+                    var id = prop.objectReferenceInstanceIDValue;
+                    if (id == 0) continue;
+                    var path = AssetDatabase.GetAssetPath(id);
                     if (string.IsNullOrEmpty(path) || path == prefabPath) continue;
                     var key = prefabPath + "|" + path;
                     if (!labels.ContainsKey(key)) labels[key] = label;

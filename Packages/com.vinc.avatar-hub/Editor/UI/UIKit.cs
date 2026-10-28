@@ -258,10 +258,21 @@ namespace VInc.AvatarHub.UI
 
         public static string AssetName(string path) => string.IsNullOrEmpty(path) ? "" : System.IO.Path.GetFileName(path);
 
-        public static Texture AssetIcon(string path)
+        /// <summary>
+        /// アセットのアイコン。アセット自体は読み込まない：画像は取り込み時に作られた縮小版、
+        /// それ以外は種類のアイコン（GetCachedIcon はマテリアルなどを読み込んでしまう）。
+        /// thumbnail = false なら画像も種類のアイコンにする。
+        /// </summary>
+        public static Texture AssetIcon(string path, bool thumbnail = true)
         {
             if (AssetDatabase.IsValidFolder(path)) return Icon("Folder Icon");
-            return AssetDatabase.GetCachedIcon(path);
+            var type = AssetDatabase.GetMainAssetTypeAtPath(path);
+            if (type == null) return Icon("DefaultAsset Icon");
+            if (thumbnail && type == typeof(Texture2D)) return AssetDatabase.GetCachedIcon(path);
+            if (type == typeof(GameObject))
+                return Icon(path.EndsWith(".prefab", StringComparison.OrdinalIgnoreCase) ? "Prefab Icon" : "PrefabModel Icon");
+            var icon = AssetPreview.GetMiniTypeThumbnail(type);
+            return icon != null ? icon : Icon("DefaultAsset Icon");
         }
     }
 

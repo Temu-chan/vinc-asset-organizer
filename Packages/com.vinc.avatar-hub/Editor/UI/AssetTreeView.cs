@@ -40,6 +40,7 @@ namespace VInc.AvatarHub.UI
             public bool isSeed;
             public string reason;
             public string norm;
+            public Texture icon;
         }
 
         public enum Filter { All, Selected, Unselected, Detected, External, New }
@@ -98,7 +99,8 @@ namespace VInc.AvatarHub.UI
             this.newPaths = newPaths ?? new HashSet<string>();
             roots.Clear();
 
-            if (showAll || this.basePath == "Assets")
+            bool wholeAssets = showAll || this.basePath == "Assets";
+            if (wholeAssets)
             {
                 roots.Add(BuildFolder("Assets", 0));
             }
@@ -109,9 +111,44 @@ namespace VInc.AvatarHub.UI
                 if (group != null) roots.Add(group);
             }
 
+            LoadIcons(wholeAssets);
             Compute();
             foreach (var r in roots) InitExpand(r);
             RebuildVisible();
+        }
+
+        /// <summary>
+        /// アイコンは選び始める前にまとめて読む（スクロール中に読み込みが走らないように）。
+        /// 読むのは表示する範囲（基準フォルダーと、その外で使われているファイル）だけ。
+        /// Assets 全体の表示は範囲を絞れないので、サムネイルは読まず種類のアイコンにする。
+        /// </summary>
+        void LoadIcons(bool typeOnly)
+        {
+            var nodes = new List<Node>();
+            void Walk(Node n)
+            {
+                nodes.Add(n);
+                foreach (var c in n.children) Walk(c);
+            }
+            foreach (var r in roots) Walk(r);
+
+            bool progress = nodes.Count > 300;
+            try
+            {
+                for (int i = 0; i < nodes.Count; i++)
+                {
+                    var n = nodes[i];
+                    if (progress && i % 50 == 0)
+                        EditorUtility.DisplayProgressBar("Avatar Hub", $"アイコンを読み込んでいます… ({i}/{nodes.Count})", (float)i / nodes.Count);
+                    if (n.isGroup) n.icon = UIKit.Icon("console.warnicon.sml");
+                    else if (n.isFolder) n.icon = UIKit.Icon("Folder Icon");
+                    else n.icon = UIKit.AssetIcon(n.path, !typeOnly);
+                }
+            }
+            finally
+            {
+                if (progress) EditorUtility.ClearProgressBar();
+            }
         }
 
         Node BuildFolder(string folder, int depth)
@@ -447,7 +484,7 @@ namespace VInc.AvatarHub.UI
             else state = n.included ? 1 : 0;
             r.check.Set(state);
 
-            r.icon.image = n.isGroup ? UIKit.Icon("console.warnicon.sml") : UIKit.AssetIcon(n.path);
+            r.icon.image = n.icon;
             r.name.text = n.isGroup ? $"{n.name}（{n.children.Count}）" : n.name;
             r.sub.text = n.sub ?? "";
             UIKit.Show(r.sub, !string.IsNullOrEmpty(n.sub));
