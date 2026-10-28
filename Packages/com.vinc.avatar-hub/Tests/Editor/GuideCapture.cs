@@ -38,8 +38,13 @@ namespace VInc.AvatarHub.Tests
 
         static readonly string[] HintKeys =
         {
-            "projects.intro", "preset.edit", "wizard.method", "wizard.drop", "wizard.select", "export.single", "export.seq", "home.search",
+            "projects.intro", "preset.edit", "wizard.method", "wizard.drop", "wizard.select", "export.single", "export.seq", "home.search", "import.intro",
         };
+
+        const string Gift = "Assets/GiftBoxGimmick";
+        const string PkgDir = "Temp/viah_guide_pkg";
+        const string QueueDir = "Temp/VIAH_GuideQueue";
+        static string giftPkg;
 
         class Shot
         {
@@ -138,8 +143,13 @@ namespace VInc.AvatarHub.Tests
             ViahStorage.DataDirOverride = dataDir;
             ViahDatabase.Reload();
             ResetForm();
+            var queueDir = Path.GetFullPath(QueueDir);
+            if (Directory.Exists(queueDir)) Directory.Delete(queueDir, true);
+            PackageImportRunner.DirOverride = queueDir;
+            PackageImportRunner.ResetCache();
 
             CreateSampleAssets();
+            CreatePackageSamples();
             var preset = ViahDatabase.Presets.FirstOrDefault(p => p.name == "VRChatギミック標準") ?? ViahDatabase.Presets[0];
             whale = new ProjectRecord
             {
@@ -246,6 +256,62 @@ namespace VInc.AvatarHub.Tests
             UnityEngine.Object.DestroyImmediate(root);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
+        }
+
+        /// <summary>
+        /// 「UnityPackage から作る」「シーケンスインポート」の画面用：GiftBox を unitypackage に書き出し、
+        /// 確認画面に「移動」「まだ入っていない」が出るように一部を動かす・消す。
+        /// </summary>
+        static void CreatePackageSamples()
+        {
+            if (AssetDatabase.IsValidFolder(Gift)) AssetDatabase.DeleteAsset(Gift);
+            var dir = Path.GetFullPath(PkgDir);
+            if (Directory.Exists(dir)) Directory.Delete(dir, true);
+            Directory.CreateDirectory(dir);
+            foreach (var sub in new[] { "Prefabs", "Materials", "Textures", "Animations" }) FolderBuilder.EnsureFolder(Gift + "/" + sub);
+            var box = MakeTexture(Gift + "/Textures/GiftBox_Body.png", new Color(0.9f, 0.3f, 0.4f));
+            var ribbon = MakeTexture(Gift + "/Textures/GiftBox_Ribbon.png", Color.yellow);
+            var boxMat = new Material(Shader.Find("Standard")) { mainTexture = box };
+            AssetDatabase.CreateAsset(boxMat, Gift + "/Materials/GiftBox_Body.mat");
+            var ribbonMat = new Material(Shader.Find("Standard")) { mainTexture = ribbon };
+            AssetDatabase.CreateAsset(ribbonMat, Gift + "/Materials/GiftBox_Ribbon.mat");
+            AssetDatabase.CreateAsset(new AnimationClip(), Gift + "/Animations/GiftBox_Open.anim");
+            AssetDatabase.CreateAsset(new AnimationClip(), Gift + "/Animations/GiftBox_Close.anim");
+            var root = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            root.name = "GiftBox";
+            UnityEngine.Object.DestroyImmediate(root.GetComponent<Collider>());
+            root.GetComponent<MeshRenderer>().sharedMaterials = new[] { boxMat, ribbonMat };
+            PrefabUtility.SaveAsPrefabAsset(root, Gift + "/Prefabs/GiftBox.prefab");
+            UnityEngine.Object.DestroyImmediate(root);
+            AssetDatabase.SaveAssets();
+            var files = new[] { Gift }.Concat(AssetDatabase.FindAssets("", new[] { Gift }).Select(AssetDatabase.GUIDToAssetPath)).Distinct().ToArray();
+            giftPkg = Path.Combine(dir, "GiftBox_Ver1.0.2-2026_10_28.unitypackage");
+            AssetDatabase.ExportPackage(files, giftPkg, ExportPackageOptions.Default);
+            foreach (var n in new[] { "Ring_Diamond_Ver1.0.0", "TeleportEffect", "HairLayer_v1.2.0" }) File.Copy(giftPkg, Path.Combine(dir, n + ".unitypackage"));
+            // 確認画面用：移動（名前変更）1 件・まだ入っていない 2 件
+            AssetDatabase.RenameAsset(Gift + "/Textures/GiftBox_Ribbon.png", "GiftBox_Ribbon_Gold");
+            AssetDatabase.DeleteAsset(Gift + "/Animations/GiftBox_Open.anim");
+            AssetDatabase.DeleteAsset(Gift + "/Animations/GiftBox_Close.anim");
+        }
+
+        /// <summary>同じパスに GUID の違うファイルを置く（Unity のインポート画面で黄色の「!」が付く状態）。</summary>
+        static void MakeConflict(string path)
+        {
+            var tmp = Path.GetDirectoryName(path).Replace('\\', '/') + "/_tmp.anim";
+            AssetDatabase.CreateAsset(new AnimationClip(), tmp);
+            var bytes = File.ReadAllBytes(tmp);
+            AssetDatabase.DeleteAsset(tmp);
+            File.WriteAllBytes(path, bytes);
+            File.WriteAllText(path + ".meta", "fileFormatVersion: 2\nguid: " + Guid.NewGuid().ToString("N") +
+                "\nNativeFormatImporter:\n  externalObjects: {}\n  mainObjectFileID: 7400000\n  userData: \n  assetBundleName: \n  assetBundleVariant: \n");
+            AssetDatabase.ImportAsset(path);
+        }
+
+        static ImportJob Job(string name, bool makeProfile, string status = "waiting")
+        {
+            var j = PackageImportRunner.NewJob(Path.Combine(Path.GetFullPath(PkgDir), name + ".unitypackage"), makeProfile);
+            j.status = status;
+            return j;
         }
 
         static Texture2D MakeTexture(string path, Color c)
@@ -488,6 +554,142 @@ namespace VInc.AvatarHub.Tests
                     cleanup = () => SessionState.SetInt("VInc.VIAH.exportMode", 0),
                 },
 
+                // プロファイル：UnityPackage から作る
+                new Shot
+                {
+                    name = "pkg-profile-1",
+                    setup = () => window.Show(new ProfileWizardPage(null, whale.id)),
+                    after = () =>
+                    {
+                        typeof(ProfileWizardPage).GetField("mode", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(window.Current, "package");
+                        CallPage("Render");
+                    },
+                    marks = new[] { (1, ".viah-choice@UnityPackage から作る", false), (2, "btn=次へ", true) },
+                },
+                new Shot
+                {
+                    name = "pkg-profile-2",
+                    setup = () => window.Show(new PackageProfilePage()),
+                    marks = new[] { (3, "#card-pick", false) },
+                },
+                new Shot
+                {
+                    name = "pkg-profile-3",
+                    setup = () =>
+                    {
+                        var s = PackageImportRunner.Single;
+                        s.jobs.Clear();
+                        s.jobs.Add(PackageImportRunner.NewJob(giftPkg, true));
+                        PackageImportRunner.Save(s);
+                        window.Show(new PackageProfilePage(true));
+                    },
+                    marks = new[] { (4, ".viah-pkg-summary", false), (5, "card:作るプロファイル", false), (6, "btn:プロファイルを作る", true) },
+                },
+                new Shot
+                {
+                    name = "pkg-profile-4",
+                    setup = () =>
+                    {
+                        MakeConflict(Gift + "/Animations/GiftBox_Open.anim");
+                        window.Show(new PackageProfilePage(true));
+                    },
+                    after = () => ScrollTo("#card-conflict"),
+                    marks = new[] { (7, "btn=Unity の画面で入れる", true) },
+                },
+                new Shot
+                {
+                    name = "pkg-profile-5",
+                    setup = () =>
+                    {
+                        var r = PackageProfileBuilder.Build(UnityPackageReader.Read(giftPkg));
+                        r.profile.name = "GiftBox";
+                        ViahDatabase.SaveProfile(r.profile);
+                        var j = PackageImportRunner.Single.jobs[0];
+                        j.status = "done";
+                        j.profileId = r.profile.id;
+                        j.warnings.Add("プレハブが使っているのに入っていないファイルが 1 件あります（入れ忘れの可能性）");
+                        j.notes.Add("黄色の「!」の 1 件は上書きしました");
+                        PackageImportRunner.Save(PackageImportRunner.Single);
+                        window.Show(new PackageProfilePage(true));
+                    },
+                    marks = new[] { (8, "#card-done", false) },
+                },
+
+                // シーケンスインポート
+                new Shot
+                {
+                    name = "import-seq-1",
+                    setup = () =>
+                    {
+                        PackageImportRunner.Sequence.jobs.Clear();
+                        PackageImportRunner.Save(PackageImportRunner.Sequence);
+                        window.Navigate("import");
+                    },
+                    marks = new[] { (1, "nav:シーケンスインポート", true), (2, "#card-add", false) },
+                },
+                new Shot
+                {
+                    name = "import-seq-2",
+                    plain = true,
+                    setup = () =>
+                    {
+                        var q = PackageImportRunner.Sequence;
+                        q.jobs.Clear();
+                        q.stopOnConflict = true;
+                        var a = Job("GiftBox_Ver1.0.2-2026_10_28", true, "done");
+                        a.profileId = whaleProfile.id;
+                        a.notes.Add("中身はすべてプロジェクトに入っていたので、インポートは省きました");
+                        q.jobs.Add(a);
+                        q.jobs.Add(Job("Ring_Diamond_Ver1.0.0", true));
+                        q.jobs.Add(Job("TeleportEffect", false));
+                        q.jobs.Add(Job("HairLayer_v1.2.0", true));
+                        PackageImportRunner.Save(q);
+                        window.Show(new ImportQueuePage());
+                    },
+                    after = () => ScrollTop("#card-policy"),
+                    marks = new[]
+                    {
+                        (3, "#card-policy", false), (4, ".viah-queue-row.is-waiting>.viah-switch", true), (5, ".viah-queue-row.is-waiting>.viah-move-down", true),
+                        (6, "btn:開始", true), (7, ".viah-progress", false),
+                    },
+                },
+                new Shot
+                {
+                    name = "import-seq-3",
+                    setup = () =>
+                    {
+                        var j = PackageImportRunner.Sequence.jobs[1];
+                        j.status = "conflict";
+                        j.conflictCount = 2;
+                        j.conflicts = new List<string> { "Assets/VRCWedding/Ring/Materials/Ring_Gold.mat", "Assets/VRCWedding/Ring/Textures/Ring_Normal.png" };
+                        j.message = "黄色の「!」（同じ名前の別のファイル）が 2 件あるため止めました";
+                        PackageImportRunner.Save(PackageImportRunner.Sequence);
+                        window.Show(new ImportQueuePage());
+                    },
+                    after = () => ScrollTo(".viah-queue-conflict"),
+                    marks = new[] { (8, ".viah-queue-conflict", false) },
+                },
+                new Shot
+                {
+                    name = "import-seq-4",
+                    setup = () =>
+                    {
+                        var q = PackageImportRunner.Sequence;
+                        foreach (var j in q.jobs)
+                        {
+                            j.status = "done";
+                            j.message = "";
+                        }
+                        q.jobs[1].profileId = liteProfile.id;
+                        q.jobs[1].notes.Add("黄色の「!」の 2 件は上書きしました");
+                        q.jobs[1].warnings.Add("プレハブが使っているのに入っていないファイルが 1 件あります（入れ忘れの可能性）");
+                        PackageImportRunner.Save(q);
+                        window.Show(new ImportQueuePage());
+                    },
+                    after = () => ScrollTo("#card-result"),
+                    marks = new[] { (9, "#card-result", false) },
+                },
+
                 // そのほか
                 new Shot
                 {
@@ -531,10 +733,13 @@ namespace VInc.AvatarHub.Tests
                 {
                     case 0:
                         shot.setup?.Invoke();
+                        // 書き換えた文字が撮る前に描き直されるよう、待つ前に置き換えておく
+                        HideTempPaths();
                         phase = shot.after != null ? 1 : 2;
                         break;
                     case 1:
                         shot.after();
+                        HideTempPaths();
                         phase = 2;
                         break;
                     default:
@@ -625,6 +830,11 @@ namespace VInc.AvatarHub.Tests
                 ResetForm();
                 ViahStorage.DataDirOverride = null;
                 ViahDatabase.Reload();
+                PackageImportRunner.DirOverride = null;
+                PackageImportRunner.ResetCache();
+                if (Directory.Exists(Path.GetFullPath(QueueDir))) Directory.Delete(Path.GetFullPath(QueueDir), true);
+                if (AssetDatabase.IsValidFolder(Gift)) AssetDatabase.DeleteAsset(Gift);
+                if (Directory.Exists(Path.GetFullPath(PkgDir))) Directory.Delete(Path.GetFullPath(PkgDir), true);
                 if (window != null)
                 {
                     window.ApplyTheme();
@@ -701,6 +911,20 @@ namespace VInc.AvatarHub.Tests
             }
         }
 
+        /// <summary>要素がスクロールのいちばん上に来るようにする（ScrollTo は、見えていれば動かさないため）。</summary>
+        static void ScrollTop(string spec)
+        {
+            var e = Find(spec) ?? throw new Exception("スクロール先が見つかりません: " + spec);
+            for (var p = e.parent; p != null; p = p.parent)
+            {
+                if (p is ScrollView sv)
+                {
+                    sv.scrollOffset = new Vector2(0, Mathf.Max(0, e.worldBound.y - sv.contentContainer.worldBound.y - 8));
+                    return;
+                }
+            }
+        }
+
         static void Press(string spec)
         {
             if (!(Find(spec) is Button b)) throw new Exception("ボタンが見つかりません: " + spec);
@@ -713,10 +937,13 @@ namespace VInc.AvatarHub.Tests
         static void HideTempPaths()
         {
             var temp = Path.GetFullPath(DataDir);
+            // unitypackage はダウンロードフォルダーにあるように見せる（画面では「/」区切りで出している）
+            var pkg = Path.GetFullPath(PkgDir).Replace('\\', '/');
             foreach (var l in window.rootVisualElement.Query<Label>().ToList())
             {
-                if (l.text == null || l.text.IndexOf(temp, StringComparison.OrdinalIgnoreCase) < 0) continue;
-                l.text = l.text.Replace(temp, @"ドキュメント\V.inc\Avatar Hub");
+                if (l.text == null) continue;
+                if (l.text.IndexOf(temp, StringComparison.OrdinalIgnoreCase) >= 0) l.text = l.text.Replace(temp, @"ドキュメント\V.inc\Avatar Hub");
+                if (l.text.IndexOf(pkg, StringComparison.OrdinalIgnoreCase) >= 0) l.text = l.text.Replace(pkg, "C:/Users/（あなた）/Downloads");
             }
         }
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
@@ -55,6 +56,7 @@ namespace VInc.AvatarHub
                 {
                     EnsureMigrated();
                     profiles = LoadDir<PackageProfile>(ViahStorage.ProfilesDir, ViahStorage.ProfileExt);
+                    FixDuplicateNames(profiles, ViahStorage.ProfileExt, RenameProfile);
                     profiles.Sort((a, b) => string.Compare(a.name, b.name, StringComparison.OrdinalIgnoreCase));
                 }
                 return profiles;
@@ -126,6 +128,63 @@ namespace VInc.AvatarHub
 
         public static List<PackageProfile> ProfilesOf(ProjectRecord project) =>
             project == null ? new List<PackageProfile>() : Profiles.Where(p => p.projectId == project.id).ToList();
+
+        // ───────────── 名前の重なり ─────────────
+
+        static readonly Regex NumberSuffix = new Regex(@"^(.*?) \((\d+)\)$");
+
+        static bool SameName(string a, string b) => string.Equals((a ?? "").Trim(), (b ?? "").Trim(), StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// ほかと重ならない名前。重なるときは「名前 (2)」「名前 (3)」…にする（JSON のファイル名の付け方と同じ）。
+        /// 同じ名前が並ぶと画面で見分けられないため。
+        /// </summary>
+        public static string UniqueName<T>(List<T> list, string name, string exceptId = null) where T : class, IStored
+        {
+            name = (name ?? "").Trim();
+            bool Taken(string n) => list.Any(x => x.Id != exceptId && SameName(x.DisplayName, n));
+            if (!Taken(name)) return name;
+            var m = NumberSuffix.Match(name);
+            var baseName = m.Success ? m.Groups[1].Value : name;
+            int n = m.Success ? int.Parse(m.Groups[2].Value) + 1 : 2;
+            while (Taken($"{baseName} ({n})")) n++;
+            return $"{baseName} ({n})";
+        }
+
+        public static string UniqueProfileName(string name, string exceptId = null) => UniqueName(Profiles, name, exceptId);
+
+        /// <summary>プロファイルの名前を変える。unitypackage の名前は変えない（書き出すファイル名が変わらないように）。</summary>
+        public static void RenameProfile(PackageProfile p, string name)
+        {
+            if (string.IsNullOrWhiteSpace(p.packageName)) p.packageName = p.name;
+            p.name = name;
+        }
+
+        /// <summary>
+        /// 以前のバージョンでは同じ名前のまま保存でき、ファイル名にだけ「(2)」が付いていた。
+        /// 読み込むときに、2 つ目以降の名前をファイル名に合わせて画面でも見分けられるようにする（Undo の対象外）。
+        /// </summary>
+        static void FixDuplicateNames<T>(List<T> list, string ext, Action<T, string> rename) where T : class, IStored
+        {
+            string FileBase(T x)
+            {
+                var f = Path.GetFileName(x.FilePath ?? "");
+                return f.EndsWith(ext, StringComparison.OrdinalIgnoreCase) ? f.Substring(0, f.Length - ext.Length) : f;
+            }
+            foreach (var g in list.GroupBy(x => (x.DisplayName ?? "").Trim(), StringComparer.OrdinalIgnoreCase).Where(g => g.Count() > 1).ToList())
+            {
+                // ファイル名が名前どおりのものはそのまま残す
+                var keep = g.FirstOrDefault(x => SameName(FileBase(x), ViahStorage.SafeFileName(x.DisplayName))) ?? g.First();
+                foreach (var x in g.Where(x => x != keep).ToList())
+                {
+                    var file = FileBase(x);
+                    var name = NumberSuffix.IsMatch(file) && !list.Any(o => o != x && SameName(o.DisplayName, file)) ? file : UniqueName(list, x.DisplayName, x.Id);
+                    rename(x, name);
+                    try { ViahStorage.Write(x.FilePath, x); }
+                    catch (Exception e) { Debug.LogWarning($"[Avatar Hub] 名前を直して保存できませんでした: {x.FilePath}\n{e.Message}"); }
+                }
+            }
+        }
 
         // ───────────── 保存・削除（Undo に記録） ─────────────
 
@@ -267,6 +326,7 @@ namespace VInc.AvatarHub
                         p.kind = kind;
                         p.Sanitize();
                         if (!ResolveConflict(Presets, p, "プリセット")) return;
+                        p.name = UniqueName(Presets, p.name, p.id);
                         SavePreset(p);
                         result = p;
                         message = $"プリセット「{p.name}」を読み込みました。";
@@ -279,6 +339,8 @@ namespace VInc.AvatarHub
                         p.Sanitize();
                         if (!ResolveConflict(Profiles, p, "プロファイル")) return;
                         if (FindProject(p.projectId) == null) p.projectId = "";
+                        var unique = UniqueName(Profiles, p.name, p.id);
+                        if (unique != p.name) RenameProfile(p, unique);
                         SaveProfile(p);
                         result = p;
                         message = $"プロファイル「{p.name}」を読み込みました。";
@@ -290,6 +352,7 @@ namespace VInc.AvatarHub
                         p.kind = kind;
                         p.Sanitize();
                         if (!ResolveConflict(Projects, p, "プロジェクト")) return;
+                        p.name = UniqueName(Projects, p.name, p.id);
                         SaveProject(p);
                         result = p;
                         message = $"プロジェクト「{p.name}」の記録を読み込みました。";
@@ -332,6 +395,7 @@ namespace VInc.AvatarHub
         {
             EnsureMigrated();
             presets = LoadDir<FolderPreset>(ViahStorage.PresetsDir, ViahStorage.PresetExt);
+            FixDuplicateNames(presets, ViahStorage.PresetExt, (p, n) => p.name = n);
             if (presets.Count == 0)
             {
                 // はじめての起動：初期プリセットを用意（Undo には載せない）

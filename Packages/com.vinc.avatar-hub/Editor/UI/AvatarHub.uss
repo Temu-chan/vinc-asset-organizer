@@ -2580,3 +2580,147 @@
     flex-shrink: 0;
     margin-bottom: 4px;
 }
+/* ───────────────────────── unitypackage（UnityPackage から作る・シーケンスインポート） ───────────────────────── */
+
+.viah-pkg-summary {
+    margin-top: 4px;
+}
+
+.viah-pkg-line {
+    align-items: flex-start;
+    padding: 6px 0;
+    border-bottom-width: 1px;
+    border-color: var(--border);
+}
+
+.viah-pkg-line:last-child {
+    border-bottom-width: 0;
+}
+
+.viah-pkg-count {
+    min-width: 44px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 10px;
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+    background-color: var(--surface-3);
+    flex-shrink: 0;
+}
+
+.viah-root Label.viah-pkg-count.ok { color: var(--success); background-color: var(--success-soft); }
+.viah-root Label.viah-pkg-count.info { color: var(--accent); background-color: var(--accent-soft); }
+.viah-root Label.viah-pkg-count.warn { color: var(--warn); background-color: var(--warn-soft); }
+.viah-root Label.viah-pkg-count.dim { color: var(--text-faint); }
+
+.viah-conflict-list {
+    margin-top: 6px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    background-color: var(--surface-2);
+}
+
+.viah-conflict-item {
+    align-items: center;
+    height: 20px;
+    overflow: hidden;
+}
+
+.viah-conflict-item > Label {
+    flex-shrink: 1;
+}
+
+.viah-job-result {
+    margin-top: 6px;
+}
+
+.viah-queue-head {
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.viah-progress {
+    height: 8px;
+    border-radius: 4px;
+    background-color: var(--surface-3);
+    overflow: hidden;
+}
+
+.viah-progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    background-color: var(--accent);
+    transition-duration: 0.25s;
+    transition-property: width;
+}
+
+.viah-queue-row {
+    margin-top: 6px;
+    padding: 8px 10px;
+    border-radius: 7px;
+    border-width: 1px;
+    border-color: var(--border);
+    background-color: var(--surface-2);
+}
+
+.viah-queue-row.is-importing,
+.viah-queue-row.is-imported {
+    border-color: var(--accent);
+    background-color: var(--accent-soft);
+}
+
+.viah-queue-row.is-conflict,
+.viah-queue-row.is-cancelled {
+    border-color: var(--warn);
+}
+
+.viah-queue-row.is-failed {
+    border-color: var(--danger);
+}
+
+.viah-queue-row.is-done,
+.viah-queue-row.is-skipped {
+    opacity: 0.85;
+}
+
+.viah-queue-line {
+    align-items: center;
+}
+
+.viah-queue-line > .viah-grow {
+    min-width: 0;
+    flex-shrink: 1;
+}
+
+.viah-queue-line > .viah-switch {
+    flex-shrink: 0;
+    margin-left: 8px;
+}
+
+.viah-queue-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 11px;
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+    background-color: var(--surface-3);
+    flex-shrink: 0;
+}
+
+.viah-queue-conflict {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top-width: 1px;
+    border-color: var(--border);
+}
+
+/* 狭いときは「プロファイルも作る」を下の行へ */
+.viah-root.compact .viah-queue-line {
+    flex-wrap: wrap;
+}
+
+.viah-root.compact .viah-queue-line > .viah-switch {
+    margin-left: 30px;
+    margin-top: 4px;
+}

@@ -206,7 +206,7 @@ namespace VInc.AvatarHub.UI
 
         static readonly string[] HintKeys =
         {
-            "projects.intro", "preset.edit", "wizard.method", "wizard.drop", "wizard.select", "export.single", "export.seq", "home.search",
+            "projects.intro", "preset.edit", "wizard.method", "wizard.drop", "wizard.select", "export.single", "export.seq", "home.search", "import.intro",
         };
 
         static string HintPrefKey(string key) => "VInc.VIAH.hint." + key;

@@ -317,13 +317,18 @@ namespace VInc.AvatarHub.UI
                 "プレハブやフォルダーをドロップするだけ。アニメーター（MA Merge Animator なども）からたどって、使っているアニメーション・マテリアル・テクスチャなどを自動でチェックします。最後に自分で微調整できます。"));
             row.Add(Choice("manual", "手動登録",
                 "ファイルやフォルダーを自分で 1 つずつ選びます。プレハブを使わないデータや、決まったフォルダーを丸ごと入れたいときに。"));
+            if (!isEdit)
+                row.Add(Choice("package", "UnityPackage から作る",
+                    "手動で作った unitypackage を選ぶと、入っていたファイルをそのまま登録します。インポートしていなければ自動でインポートします。"));
             methodCard.Add(row);
             c.Add(methodCard);
 
-            bool canNext = BaseValid() || mode == "auto";
-            footer.Add(UIKit.Text(BaseValid() ? "" : mode == "auto" ? "基準フォルダーは、プレハブを入れると自動で決まります" : "基準フォルダーを選んでください",
-                mode == "auto" ? "viah-faint" : "viah-msg-warn", "viah-grow", "viah-wrap"));
-            var next = UIKit.Btn("次へ", () => Go(mode == "manual" ? StepSelect : StepSeeds), "primary", "big");
+            UIKit.Show(projCard, mode != "package");
+            bool canNext = BaseValid() || mode == "auto" || mode == "package";
+            footer.Add(UIKit.Text(mode == "package" ? "基準フォルダーは、パッケージの中身から自動で決まります"
+                    : BaseValid() ? "" : mode == "auto" ? "基準フォルダーは、プレハブを入れると自動で決まります" : "基準フォルダーを選んでください",
+                mode == "manual" && !BaseValid() ? "viah-msg-warn" : "viah-faint", "viah-grow", "viah-wrap"));
+            var next = UIKit.Btn("次へ", Next, "primary", "big");
             next.SetEnabled(canNext);
             footer.Add(next);
 
@@ -356,9 +361,15 @@ namespace VInc.AvatarHub.UI
                     Commit("登録方法を選択");
                 }
                 Render();
-                if (e.clickCount == 2 && BaseValid()) Go(mode == "manual" ? StepSelect : StepSeeds);
+                if (e.clickCount == 2 && (BaseValid() || mode == "package")) Next();
             });
             return card;
+        }
+
+        void Next()
+        {
+            if (mode == "package") window.Show(new PackageProfilePage());
+            else Go(mode == "manual" ? StepSelect : StepSeeds);
         }
 
         // ───────────────────────── 2. プレハブを入れる ─────────────────────────
@@ -735,8 +746,8 @@ namespace VInc.AvatarHub.UI
                 var baseName = packageNameSame ? draft.name : draft.packageName;
                 var err = string.IsNullOrWhiteSpace(draft.name) ? "名前を入れてください"
                     : ViahStorage.SafeFileName(baseName) != (baseName ?? "").Trim() ? "ファイル名に使えない文字は「_」に置き換えて保存されます" : null;
-                var dup = ViahDatabase.Profiles.Any(p => p.id != draft.id && string.Equals(p.name, draft.name, StringComparison.OrdinalIgnoreCase));
-                nameMsg.text = err ?? (dup ? "同じ名前のプロファイルがあります（保存はできます）" : "");
+                var unique = string.IsNullOrWhiteSpace(draft.name) ? draft.name : ViahDatabase.UniqueProfileName(draft.name, draft.id);
+                nameMsg.text = err ?? (unique != draft.name ? $"同じ名前のプロファイルがあるので「{unique}」として保存します" : "");
                 nameMsg.RemoveFromClassList("viah-msg-error");
                 nameMsg.RemoveFromClassList("viah-msg-warn");
                 if (nameMsg.text.Length > 0) nameMsg.AddToClassList(string.IsNullOrWhiteSpace(draft.name) ? "viah-msg-error" : "viah-msg-warn");
@@ -791,6 +802,13 @@ namespace VInc.AvatarHub.UI
             draft.baseFolder = new AssetRef(basePath);
             draft.mode = mode;
             draft.packageName = packageNameSame ? "" : draft.packageName;
+            // 同じ名前が並ぶと一覧で見分けられないので「名前 (2)」にする（unitypackage の名前は入力したまま）
+            var unique = ViahDatabase.UniqueProfileName(draft.name, draft.id);
+            if (unique != draft.name)
+            {
+                ViahDatabase.RenameProfile(draft, unique);
+                window.Toast($"同じ名前のプロファイルがあるので「{unique}」として保存しました");
+            }
             draft.seeds = mode == "auto" ? AssetRef.FromPaths(seeds) : new List<AssetRef>();
             model.WriteTo(draft);
             if (scan != null)

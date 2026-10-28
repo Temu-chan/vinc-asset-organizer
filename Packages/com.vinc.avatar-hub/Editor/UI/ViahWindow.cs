@@ -16,8 +16,11 @@ namespace VInc.AvatarHub.UI
         public readonly VisualElement root = UIKit.Div("viah-page-host");
         readonly string undoKey = Guid.NewGuid().ToString("N");
 
-        /// <summary>"home" / "projects" / "profiles" / "export" / "settings" など</summary>
+        /// <summary>"home" / "projects" / "profiles" / "export" / "import" / "settings" など</summary>
         public abstract string Section { get; }
+
+        /// <summary>ドメインリロードのあとに開き直す画面のキー（ふつうは Section と同じ）。</summary>
+        public virtual string RestoreKey => Section;
 
         public abstract void Build();
 
@@ -62,6 +65,7 @@ namespace VInc.AvatarHub.UI
             new Workflow { key = "projects", label = "プロジェクト作成", description = "決まった構成のフォルダーを一括で作る", create = () => new ProjectsPage() },
             new Workflow { key = "profiles", label = "プロファイル登録", description = "unitypackage に入れる中身を登録する", create = () => new ProfilesPage() },
             new Workflow { key = "export", label = "エクスポート", description = "unitypackage を書き出す（単発・シーケンス）", create = () => new ExportPage() },
+            new Workflow { key = "import", label = "シーケンスインポート", description = "複数の unitypackage を順番にまとめてインポートする", create = () => new ImportQueuePage() },
         };
 
         /// <summary>配色（アクセント）の一覧。key, 表示名, 見本の色</summary>
@@ -503,6 +507,7 @@ namespace VInc.AvatarHub.UI
             var wf = Workflows.Find(w => w.key == section);
             if (wf != null) page = wf.create();
             else if (section == "settings") page = new SettingsPage();
+            else if (section == PackageProfilePage.Key) page = new PackageProfilePage(true);
             else page = new HomePage();
             Show(page);
         }
@@ -522,7 +527,7 @@ namespace VInc.AvatarHub.UI
             UndoHub.CurrentPage = page;
             page.Committed = page.CaptureState();
             HighlightNav();
-            SessionState.SetString(PageKey, page.Section);
+            SessionState.SetString(PageKey, page.RestoreKey);
         }
 
         public Page Current => current;

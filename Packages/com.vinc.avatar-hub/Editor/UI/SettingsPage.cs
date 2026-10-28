@@ -286,10 +286,12 @@ namespace VInc.AvatarHub.UI
             card.Add(Bullet("フォルダー構成の編集（追加・名前変更・並べ替え・入れ子・削除）"));
             card.Add(Bullet("プロファイルの中身の選択、起点の追加・削除、自動検出"));
             card.Add(Bullet("保存・削除・複製・JSON の読み込み・設定の変更"));
+            card.Add(Bullet("シーケンスインポートのキューの追加・並べ替え・削除（インポート中は除く）"));
             card.Add(Bullet("フォルダーの作成（取り消すと、作ったフォルダーを削除します。中にファイルを置いていた場合は残します）"));
             card.Add(UIKit.Text("元に戻せない操作", "viah-bold", "viah-mt12"));
             card.Add(Bullet("unitypackage の書き出し（ファイルはそのまま残り、「前回のバージョン」の記録も戻りません）"));
             card.Add(Bullet("JSON の書き出し（人に渡すために作ったファイル）"));
+            card.Add(Bullet("unitypackage のインポート（プロジェクトに入ったファイルはそのまま残ります。一緒に作ったプロファイルは戻せます）"));
             card.Add(Bullet("画面の移動・検索・絞り込み（データを変えない操作）"));
             card.Add(Bullet("別の画面に移る前の「入力途中の内容」：画面を移ると、その画面の入力途中の Undo は消えます（保存したものは戻せます）"));
             return card;

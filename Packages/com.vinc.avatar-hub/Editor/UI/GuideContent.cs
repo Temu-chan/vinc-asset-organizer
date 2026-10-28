@@ -59,12 +59,17 @@ namespace VInc.AvatarHub.UI
             new GuideGroup
             {
                 id = "profile", title = "プロファイル（書き出す中身）", icon = "Prefab Icon", workflow = "profiles", conceptId = "profile-about",
-                topics = new[] { "profile-new", "profile-edit", "profile-duplicate", "profile-import", "profile-share" },
+                topics = new[] { "profile-new", "profile-from-package", "profile-edit", "profile-duplicate", "profile-import", "profile-share" },
             },
             new GuideGroup
             {
                 id = "export", title = "エクスポート（書き出し）", icon = "SaveAs", workflow = "export", conceptId = "export-about",
                 topics = new[] { "export-single", "export-sequence" },
+            },
+            new GuideGroup
+            {
+                id = "import", title = "インポート（unitypackage を入れる）", icon = "Import", workflow = "import", conceptId = "import-about",
+                topics = new[] { "import-sequence" },
             },
             new GuideGroup
             {
@@ -232,6 +237,30 @@ namespace VInc.AvatarHub.UI
 
             list.Add(new GuideTopic
             {
+                id = "profile-from-package", group = "profile",
+                title = "UnityPackage からプロファイルを作りたい",
+                summary = "手動で作った unitypackage を選ぶだけで、同じ中身のプロファイルを作る。",
+                intro = new[]
+                {
+                    "今まで手で作っていた unitypackage を選ぶと、入っていたファイルをそのままプロファイルとして登録します。Avatar Hub に移すときに、中身を 1 つずつ選び直す必要はありません。",
+                    "インポートしたあとに移動・名前変更したファイルも、GUID（Unity の内部 ID）で追いかけて見つけます。まだインポートしていなければ、自動でインポートしてから作ります。",
+                },
+                steps =
+                {
+                    new GuideStep("「プロファイル登録」で「＋ 新規」を押し、① 登録のしかたで「UnityPackage から作る」を選んで ②「次へ」。", "pkg-profile-1"),
+                    new GuideStep("③ unitypackage をドロップするか、「ファイルを選ぶ…」で選びます（エクスプローラーからでも OK）。中身を読むだけで、まだインポートはしません。複数を選ぶと、シーケンスインポートでまとめて作れます。", "pkg-profile-2"),
+                    new GuideStep("④ プロジェクトと照らし合わせた結果が出ます。⑤ 名前と前回のバージョンはファイル名から読み取ります（例：Ring_Ver1.0.2 → Ring、次のエクスポートは 1.0.2 の続きから）。⑥ ボタンを押すと、まだ入っていないファイルを自動でインポートしてから作ります。", "pkg-profile-3"),
+                    new GuideStep("黄色の「!」（同じ名前の別のファイルがプロジェクトにある）があるときだけ、⑦「Unity の画面で入れる」（入れるファイルを選べます）か「このまま入れる（上書き）」を選びます。", "pkg-profile-4"),
+                    new GuideStep("⑧ できたプロファイルはすぐに保存されます（Ctrl+Z で取り消せます）。「入れ忘れの可能性」などの注意が出たら、「中身を確認・修正」で確かめてください。", "pkg-profile-5"),
+                    new GuideStep("同じ unitypackage からもう一度作ると、中身がまったく同じなら「既にあります」と出て、新しくは作りません。同じ名前で中身が違うとき（新しいバージョンのパッケージなど）は、何が変わるかを見て「上書きする」か「別名で作る（例：C125 (2)）」を選べます。"),
+                },
+                actionLabel = "UnityPackage から作る",
+                action = w => w.Show(new PackageProfilePage()),
+                related = new[] { "import-sequence", "export-single" },
+            });
+
+            list.Add(new GuideTopic
+            {
                 id = "profile-edit", group = "profile",
                 title = "作成したプロファイルを編集・修正したい",
                 summary = "含めるファイルの追加・削除や、名前・書き出し先の変更。",
@@ -340,6 +369,43 @@ namespace VInc.AvatarHub.UI
                 related = new[] { "export-single" },
             });
 
+            // ───────────── インポート ─────────────
+
+            list.Add(new GuideTopic
+            {
+                id = "import-about", group = "import", concept = true,
+                title = "シーケンスインポートとは？",
+                summary = "複数の unitypackage を、上から順番にまとめてインポートする機能です。",
+                intro = new[]
+                {
+                    "シーケンスインポートは、複数の unitypackage を並べておき、上から順番にまとめてインポートする機能です。1 つずつ Unity のインポート画面を開いて「Import」を押す手間がなくなります。",
+                    "Unity のインポート画面で黄色の「!」が付くファイル（同じ名前の別のファイルがプロジェクトにある）は、そのまま入れるとプロジェクトのファイルが上書きされます。シーケンスインポートでは、これがあったときに止めて確認するか、無視して入れるかを選べます。",
+                    "行ごとに「プロファイルも作る」をオンにすると、インポートのあとに中身をそのままプロファイルとして登録します。手で作っていた unitypackage を、まとめて Avatar Hub に移せます。",
+                    "インポートは Unity の機能なので、Ctrl+Z では戻せません（作ったプロファイルは戻せます）。",
+                },
+                introImage = "import-seq-2-plain",
+                actionLabel = "シーケンスインポートを開く",
+                action = w => w.Show(new ImportQueuePage()),
+            });
+
+            list.Add(new GuideTopic
+            {
+                id = "import-sequence", group = "import",
+                title = "複数の unitypackage をまとめてインポートしたい",
+                summary = "キューに並べて、順番に自動でインポートする。",
+                steps =
+                {
+                    new GuideStep("左のサイドバーの ①「シーケンスインポート」を開き、② unitypackage をドロップします（エクスプローラーからでも、複数まとめてでも OK）。「フォルダーからまとめて追加…」で、フォルダーの中の unitypackage をすべて並べることもできます。", "import-seq-1"),
+                    new GuideStep("③ 黄色の「!」があったときにどうするかを選びます（おすすめは「止めて確認する」）。④ 行ごとに「プロファイルも作る」を選べます。⑤ ↑↓ で順番を入れ替えられます。", "import-seq-2"),
+                    new GuideStep("⑥「開始」を押すと、上から順番にインポートします。⑦ 何件目まで終わったかは、ここで確認できます。スクリプトが入っていると途中でコンパイルが走りますが、終わると自動で続きから進みます。", "import-seq-2"),
+                    new GuideStep("黄色の「!」で止まったときは、⑧ その行で「Unity の画面で入れる」「このまま入れる（上書き）」「飛ばす」から選ぶと、続きを進めます。同じ名前で中身の違うプロファイルが既にあるときも止まるので、「上書きする」「別名で作る」「作らない」から選んでください（中身がまったく同じなら作らずに進みます）。", "import-seq-3"),
+                    new GuideStep("すべて終わると、⑨ 作ったプロファイルの一覧が出ます。注意があるものには黄色の印が付くので、「中身を確認・修正」で確かめてください。", "import-seq-4"),
+                },
+                actionLabel = "シーケンスインポートを開く",
+                action = w => w.Show(new ImportQueuePage()),
+                related = new[] { "profile-from-package" },
+            });
+
             // ───────────── そのほか ─────────────
 
             list.Add(new GuideTopic
@@ -361,8 +427,8 @@ namespace VInc.AvatarHub.UI
                 intro = new[]
                 {
                     "Ctrl+Z で元に戻す、Ctrl+Y（または Ctrl+Shift+Z）でやり直しができます。Unity の Edit メニューにも「VIAH: 〜」として出ます。",
-                    "元に戻せるもの：入力途中の内容、フォルダー構成の編集、プロファイルの中身の選択、保存・削除・複製・JSON の読み込み、設定の変更、フォルダーの作成（取り消すと作ったフォルダーを削除。中にファイルを置いていたら残します）。",
-                    "元に戻せないもの：unitypackage と JSON の書き出し（作ったファイルはそのまま）、画面の移動や検索。画面を移ると、その画面の入力途中の Undo は消えます（保存したものは戻せます）。",
+                    "元に戻せるもの：入力途中の内容、フォルダー構成の編集、プロファイルの中身の選択、保存・削除・複製・JSON の読み込み、設定の変更、シーケンスインポートのキューの編集、フォルダーの作成（取り消すと作ったフォルダーを削除。中にファイルを置いていたら残します）。",
+                    "元に戻せないもの：unitypackage と JSON の書き出し（作ったファイルはそのまま）、unitypackage のインポート（入ったファイルはそのまま。一緒に作ったプロファイルは戻せます）、画面の移動や検索。画面を移ると、その画面の入力途中の Undo は消えます（保存したものは戻せます）。",
                 },
                 actionLabel = "設定で詳しく見る",
                 action = w => w.Show(new SettingsPage()),

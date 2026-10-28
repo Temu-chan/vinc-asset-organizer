@@ -100,6 +100,10 @@ namespace VInc.AvatarHub.Tests
             Application.logMessageReceived += OnLog;
 
             var profile = PrepareData(out var project);
+            // キューは実際のものを汚さないよう、Temp の中に保存する
+            PackageImportRunner.DirOverride = Path.GetFullPath("Temp/viah_ui_queue");
+            PackageImportRunner.ResetCache();
+            var pkg = PreparePackage();
             steps.Clear();
             steps.Add(("home", () => window.Navigate("home")));
             steps.Add(("projects_new", () => window.Show(new ProjectsPage(ProjectsPage.NewKey))));
@@ -107,10 +111,88 @@ namespace VInc.AvatarHub.Tests
             steps.Add(("preset_edit", () => window.Show(PresetEditorPage.ForPreset(ViahDatabase.Presets[0].Clone(), false, _ => { }, () => { }))));
             steps.Add(("profiles", () => window.Show(new ProfilesPage(profile.id))));
             steps.Add(("wizard_method", () => window.Show(new ProfileWizardPage(null, project.id))));
+            steps.Add(("wizard_method_end", () => ScrollToEnd()));
             steps.Add(("wizard_seeds", () => Go(1)));
             steps.Add(("wizard_scan", () => Invoke("RunScan")));
             steps.Add(("wizard_name", () => Go(3)));
             steps.Add(("wizard_edit", () => window.Show(new ProfileWizardPage(profile, null, _ => { }))));
+            steps.Add(("package_pick", () => window.Show(new PackageProfilePage())));
+            steps.Add(("package_check", () =>
+            {
+                var s = PackageImportRunner.Single;
+                s.jobs.Clear();
+                s.jobs.Add(PackageImportRunner.NewJob(pkg, true));
+                PackageImportRunner.Save(s);
+                window.Show(new PackageProfilePage(true));
+            }));
+            steps.Add(("package_done", () =>
+            {
+                var j = PackageImportRunner.Single.jobs[0];
+                j.status = "done";
+                j.profileId = profile.id;
+                j.warnings.Add("プレハブが使っているのに入っていないファイルが 2 件あります（入れ忘れの可能性）");
+                j.notes.Add("黄色の「!」の 1 件は上書きしました");
+                PackageImportRunner.Save(PackageImportRunner.Single);
+                window.Show(new PackageProfilePage(true));
+            }));
+            steps.Add(("package_exists", () =>
+            {
+                var j = PackageImportRunner.Single.jobs[0];
+                j.warnings.Clear();
+                j.notes.Clear();
+                j.alreadyExists = true;
+                j.notes.Add("中身がまったく同じプロファイル「VIAH_Sample」が既にあるので、新しくは作りませんでした");
+                PackageImportRunner.Save(PackageImportRunner.Single);
+                window.Show(new PackageProfilePage(true));
+            }));
+            steps.Add(("package_profile_conflict", () =>
+            {
+                var j = PackageImportRunner.Single.jobs[0];
+                j.alreadyExists = false;
+                j.status = "profile-conflict";
+                j.existingProfileId = profile.id;
+                j.message = "同じ名前のプロファイル「VIAH_Sample」が既にあります（中身が違います）";
+                j.differences = new List<string> { "登録しているファイル：12 件 → 14 件（増える 3 件・なくなる 1 件）", "起点のプレハブが変わります" };
+                PackageImportRunner.Save(PackageImportRunner.Single);
+                window.Show(new PackageProfilePage(true));
+            }));
+            steps.Add(("import_queue", () =>
+            {
+                var q = PackageImportRunner.Sequence;
+                q.jobs.Clear();
+                var a = PackageImportRunner.NewJob(pkg, true);
+                a.status = "done";
+                a.profileId = profile.id;
+                a.notes.Add("中身はすべてプロジェクトに入っていたので、インポートは省きました");
+                var b = PackageImportRunner.NewJob(Path.Combine(Path.GetDirectoryName(pkg), "Ring_Diamond_Ver1.0.0.unitypackage"), true);
+                b.status = "conflict";
+                b.conflictCount = 3;
+                b.conflicts = new List<string> { "Assets/VRCWedding/Ring/Mat.mat", "Assets/VRCWedding/Ring/Ring.fbx", "Assets/VRCWedding/Ring/Tex.png" };
+                b.message = "黄色の「!」（同じ名前の別のファイル）が 3 件あるため止めました";
+                q.jobs.Add(a);
+                q.jobs.Add(b);
+                var c = PackageImportRunner.NewJob(Path.Combine(Path.GetDirectoryName(pkg), "C125_Ver1.0.0.unitypackage"), true);
+                c.status = "profile-conflict";
+                c.existingProfileId = profile.id;
+                c.message = "同じ名前のプロファイル「VIAH_Sample」が既にあります（中身が違います）";
+                c.differences = new List<string> { "登録しているファイル：277 件 → 279 件（増える 2 件・なくなる 0 件）" };
+                q.jobs.Add(c);
+                q.jobs.Add(PackageImportRunner.NewJob(Path.Combine(Path.GetDirectoryName(pkg), "TeleportEffect.unitypackage"), false));
+                q.jobs.Add(PackageImportRunner.NewJob(Path.Combine(Path.GetDirectoryName(pkg), "HairLayer_v1.2.0.unitypackage"), true));
+                PackageImportRunner.Save(q);
+                window.Show(new ImportQueuePage());
+                ScrollToEnd();
+            }));
+            steps.Add(("import_done", () =>
+            {
+                var q = PackageImportRunner.Sequence;
+                foreach (var j in q.jobs) j.status = "done";
+                q.jobs[1].profileId = profile.id;
+                q.jobs[1].warnings.Add("パッケージにあってプロジェクトに無いファイル 1 件は入れていません");
+                PackageImportRunner.Save(q);
+                window.Show(new ImportQueuePage());
+                ScrollToEnd();
+            }));
             steps.Add(("export_single", () =>
             {
                 SessionState.SetInt("VInc.VIAH.exportMode", 0);
@@ -176,6 +258,16 @@ namespace VInc.AvatarHub.Tests
             window.position = new Rect(80, 80, size.x, size.y);
             prefix = sizes.Count > 0 ? $"{size.x:0}x{size.y:0}_" : "";
             log.AppendLine($"── size {size.x:0}x{size.y:0}");
+        }
+
+        /// <summary>撮る前に、画面のスクロールをいちばん下へ（下のほうの表示も確かめる）。</summary>
+        static void ScrollToEnd()
+        {
+            window.rootVisualElement.schedule.Execute(() =>
+            {
+                foreach (var sv in window.rootVisualElement.Query<ScrollView>().ToList())
+                    sv.verticalScroller.value = sv.verticalScroller.highValue;
+            }).ExecuteLater(300);
         }
 
         static void Go(int step)
@@ -262,10 +354,49 @@ namespace VInc.AvatarHub.Tests
         static void Finish()
         {
             EditorApplication.update -= Tick;
+            PackageImportRunner.DirOverride = null;
+            PackageImportRunner.ResetCache();
+            if (AssetDatabase.IsValidFolder(PkgRoot)) AssetDatabase.DeleteAsset(PkgRoot);
             Application.logMessageReceived -= OnLog;
             log.Insert(0, $"RESULT errors={errors.Count}\n");
             foreach (var e in errors) log.AppendLine("ERROR " + e);
             File.WriteAllText(LogPath, log.ToString(), new UTF8Encoding(false));
+        }
+
+        const string PkgRoot = "Assets/VIAH_UiPkg";
+
+        /// <summary>
+        /// 「UnityPackage から作る」の確認画面用：入っている・まだ入っていない・黄色の「!」が混ざった unitypackage を作る。
+        /// </summary>
+        static string PreparePackage()
+        {
+            if (AssetDatabase.IsValidFolder(PkgRoot)) AssetDatabase.DeleteAsset(PkgRoot);
+            AssetDatabase.CreateFolder("Assets", "VIAH_UiPkg");
+            var mat = new Material(Shader.Find("Standard"));
+            AssetDatabase.CreateAsset(mat, PkgRoot + "/Box.mat");
+            AssetDatabase.CreateAsset(new Material(Shader.Find("Standard")), PkgRoot + "/Lid.mat");
+            AssetDatabase.CreateAsset(new AnimationClip(), PkgRoot + "/Open.anim");
+            AssetDatabase.CreateAsset(new AnimationClip(), PkgRoot + "/Close.anim");
+            var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            go.GetComponent<MeshRenderer>().sharedMaterial = mat;
+            PrefabUtility.SaveAsPrefabAsset(go, PkgRoot + "/Box.prefab");
+            UnityEngine.Object.DestroyImmediate(go);
+            AssetDatabase.SaveAssets();
+            var dir = Path.GetFullPath("Temp/viah_ui_pkg");
+            Directory.CreateDirectory(dir);
+            var file = Path.Combine(dir, "GiftBox_Ver1.0.2-2026_10_28.unitypackage");
+            AssetDatabase.ExportPackage(new[] { PkgRoot, PkgRoot + "/Box.mat", PkgRoot + "/Lid.mat", PkgRoot + "/Open.anim", PkgRoot + "/Close.anim", PkgRoot + "/Box.prefab" }, file, ExportPackageOptions.Default);
+            // まだ入っていない 2 件と、黄色の「!」1 件
+            AssetDatabase.DeleteAsset(PkgRoot + "/Open.anim");
+            AssetDatabase.DeleteAsset(PkgRoot + "/Close.anim");
+            var lid = PkgRoot + "/Lid.mat";
+            var bytes = File.ReadAllBytes(lid);
+            AssetDatabase.DeleteAsset(lid);
+            File.WriteAllBytes(lid, bytes);
+            File.WriteAllText(lid + ".meta", "fileFormatVersion: 2\nguid: " + Guid.NewGuid().ToString("N") +
+                "\nNativeFormatImporter:\n  externalObjects: {}\n  mainObjectFileID: 2100000\n  userData: \n  assetBundleName: \n  assetBundleVariant: \n");
+            AssetDatabase.ImportAsset(lid);
+            return file;
         }
 
         /// <summary>テスト用のプロジェクト記録とプロファイル（VIAH_Sample を使う）。</summary>

@@ -149,7 +149,7 @@ namespace VInc.AvatarHub.UI
                 var copy = p.Clone();
                 copy.id = ViahStorage.NewId();
                 copy.filePath = null;
-                copy.name = p.name + "_copy";
+                copy.name = ViahDatabase.UniqueProfileName(p.name + "_copy");
                 copy.createdAt = "";
                 ViahDatabase.SaveProfile(copy, $"「{p.name}」を複製");
                 selectedId = copy.id;
