@@ -73,6 +73,16 @@ namespace VInc.AvatarHub.UI
             },
             new GuideGroup
             {
+                id = "bookmark", title = "プロジェクトブックマーカー", icon = "Favorite", workflow = "bookmarks", conceptId = "bookmark-about",
+                topics = new[] { "bookmark-use", "bookmark-share" },
+            },
+            new GuideGroup
+            {
+                id = "searcher", title = "アセットSearcher", icon = "Search Icon", workflow = "searcher", conceptId = "searcher-about",
+                topics = new[] { "searcher-use", "searcher-prefab" },
+            },
+            new GuideGroup
+            {
                 id = "other", title = "そのほか", icon = "SettingsIcon", conceptId = null,
                 topics = new[] { "search", "undo", "settings" },
             },
@@ -406,6 +416,106 @@ namespace VInc.AvatarHub.UI
                 related = new[] { "profile-from-package" },
             });
 
+            // ───────────── プロジェクトブックマーカー ─────────────
+
+            list.Add(new GuideTopic
+            {
+                id = "bookmark-about", group = "bookmark", concept = true,
+                title = "プロジェクトブックマーカーとは？",
+                summary = "よく使うフォルダーを登録して、Project ウィンドウですぐ飛べるようにする機能です。",
+                intro = new[]
+                {
+                    "Project ウィンドウでフォルダーを開いていても、Inspector でマテリアルなどをクリックすると、表示がそちらへ飛んでしまいます。プロジェクトブックマーカーは、よく使うフォルダーを登録しておき、いつでもクリック 1 回でその場所へ戻れるようにする機能です。",
+                    "押すと、最後に使った Project タブ（ロックしていないもの）がその場所に切り替わります。ロック中のタブは動かしません。選択中のもの（Inspector の表示）も変わりません。",
+                    "「ブックマークのタブを出す」で、Project タブの隣にブックマークだけのタブを出せます。Avatar Hub を開かなくても、クリック 1 回で飛べます。",
+                    "ブックマークは自分だけのものです（はじめは空です）。JSON に書き出して人に渡すこともでき、別の Unity プロジェクトでも、同じ場所（パス）にフォルダーがあれば使えます。",
+                },
+                introImage = "bookmark-1-plain",
+                actionLabel = "プロジェクトブックマーカーを開く",
+                action = w => w.Show(new BookmarksPage()),
+            });
+
+            list.Add(new GuideTopic
+            {
+                id = "bookmark-use", group = "bookmark",
+                title = "よく使うフォルダーへすぐ飛びたい",
+                summary = "フォルダーをブックマークして、クリック 1 回で Project ウィンドウを切り替える。",
+                steps =
+                {
+                    new GuideStep("左のサイドバーの ①「プロジェクトブックマーカー」を開き、② Project ウィンドウからフォルダーをドロップします（複数まとめても OK）。Project で選んでから「選択中のものを追加」を押しても登録できます。", "bookmark-1"),
+                    new GuideStep("③ 登録したブックマークを押すと、最後に使った（ロックしていない）Project タブがその場所に切り替わります。名前の変更・並べ替え（↑↓）・削除は行の右のボタンで。", "bookmark-1"),
+                    new GuideStep("④「ブックマークのタブを出す」で、Project タブの隣にブックマークだけのタブを出せます。出しておけば、Avatar Hub を開かなくてもクリック 1 回で飛べます。", "bookmark-1"),
+                },
+                actionLabel = "プロジェクトブックマーカーを開く",
+                action = w => w.Show(new BookmarksPage()),
+                related = new[] { "bookmark-share" },
+            });
+
+            list.Add(new GuideTopic
+            {
+                id = "bookmark-share", group = "bookmark",
+                title = "ブックマークを人に渡したい・別のプロジェクトで使いたい",
+                summary = "JSON に書き出して渡す。同じ場所にフォルダーがあれば、別のプロジェクトでも使える。",
+                steps =
+                {
+                    new GuideStep("①「JSON に書き出す…」で保存して、相手に渡します。受け取った人は「JSON から読み込む…」で足せます（同じ場所のものは重ねて登録しません）。", "bookmark-share-1"),
+                    new GuideStep("ブックマークは PC 全体で共通なので、別の Unity プロジェクトを開いても同じ一覧が出ます。同じ場所（パス）にフォルダーが無いものは薄く表示され、押しても飛びません。"),
+                },
+                actionLabel = "プロジェクトブックマーカーを開く",
+                action = w => w.Show(new BookmarksPage()),
+                related = new[] { "bookmark-use" },
+            });
+
+            // ───────────── アセットSearcher ─────────────
+
+            list.Add(new GuideTopic
+            {
+                id = "searcher-about", group = "searcher", concept = true,
+                title = "アセットSearcher とは？",
+                summary = "選んだアセットを「使っているもの」を探す機能です。",
+                intro = new[]
+                {
+                    "アセットSearcher は、選んだアセットを使っているもの（逆引き）を探す機能です。テクスチャならそれを使っているマテリアル、アニメーションならそれを使っているコントローラーが見つかります。",
+                    "探す場所は「Assets 全体」「フォルダーの中」「プレハブの中」から選べます。プレハブの中を調べると、どのオブジェクトの、どのコンポーネントの、どの欄が使っているかまでわかります。",
+                    "ふだんは直接使っているものだけを出します。「その先もたどる」をオンにすると、テクスチャ → マテリアル → プレハブのように、間にはさまっているもの（経由）も表示します。",
+                    "アセット本体は読み込まず、Unity の依存関係の情報だけで探します（プレハブの中を調べるときだけ、そのプレハブを読み込みます）。",
+                },
+                introImage = "searcher-2-plain",
+                actionLabel = "アセットSearcher を開く",
+                action = w => w.Show(new SearcherPage()),
+            });
+
+            list.Add(new GuideTopic
+            {
+                id = "searcher-use", group = "searcher",
+                title = "このアセットを使っている場所を探したい",
+                summary = "テクスチャを使っているマテリアル、アニメーションを使っているコントローラーなどを探す。",
+                steps =
+                {
+                    new GuideStep("左のサイドバーの「アセットSearcher」を開き、① 探したいアセットを Project ウィンドウからドロップします（選んでから「選択中のものを使う」でも OK）。", "searcher-1"),
+                    new GuideStep("② 探す場所を選びます（Assets 全体・フォルダーの中・プレハブの中）。③ 間にはさまっているものも見たいときは「その先もたどる」をオンに。④「検索」を押します。", "searcher-1"),
+                    new GuideStep("⑤ 直接使っているものと、その先で使っているもの（紫の「経由」）が分かれて出ます。「Project で表示」で、その場所へ飛べます。", "searcher-2"),
+                },
+                actionLabel = "アセットSearcher を開く",
+                action = w => w.Show(new SearcherPage()),
+                related = new[] { "searcher-prefab" },
+            });
+
+            list.Add(new GuideTopic
+            {
+                id = "searcher-prefab", group = "searcher",
+                title = "プレハブのどこで使われているか調べたい",
+                summary = "どのオブジェクトの、どのコンポーネントの、どの欄が使っているかを表示する。",
+                steps =
+                {
+                    new GuideStep("探す場所で「プレハブの中」を選び、調べたいプレハブをドロップします。「検索」を押すと、① どのオブジェクトの、どのコンポーネントの、どの欄が使っているかが出ます（例：Body › MA Merge Animator › animator）。", "searcher-3"),
+                    new GuideStep("「その先もたどる」をオンにすると、コンポーネントが使っているコントローラーなどの中で使われている場合も出ます。「プレハブで選択」で、プレハブを開いてそのオブジェクトを選べます。"),
+                },
+                actionLabel = "アセットSearcher を開く",
+                action = w => w.Show(new SearcherPage()),
+                related = new[] { "searcher-use" },
+            });
+
             // ───────────── そのほか ─────────────
 
             list.Add(new GuideTopic
@@ -427,7 +537,7 @@ namespace VInc.AvatarHub.UI
                 intro = new[]
                 {
                     "Ctrl+Z で元に戻す、Ctrl+Y（または Ctrl+Shift+Z）でやり直しができます。Unity の Edit メニューにも「VIAH: 〜」として出ます。",
-                    "元に戻せるもの：入力途中の内容、フォルダー構成の編集、プロファイルの中身の選択、保存・削除・複製・JSON の読み込み、設定の変更、シーケンスインポートのキューの編集、フォルダーの作成（取り消すと作ったフォルダーを削除。中にファイルを置いていたら残します）。",
+                    "元に戻せるもの：入力途中の内容、フォルダー構成の編集、プロファイルの中身の選択、保存・削除・複製・JSON の読み込み、設定の変更、シーケンスインポートのキューの編集、ブックマークの追加・削除・名前の変更・並べ替え、フォルダーの作成（取り消すと作ったフォルダーを削除。中にファイルを置いていたら残します）。",
                     "元に戻せないもの：unitypackage と JSON の書き出し（作ったファイルはそのまま）、unitypackage のインポート（入ったファイルはそのまま。一緒に作ったプロファイルは戻せます）、画面の移動や検索。画面を移ると、その画面の入力途中の Undo は消えます（保存したものは戻せます）。",
                 },
                 actionLabel = "設定で詳しく見る",
@@ -438,10 +548,11 @@ namespace VInc.AvatarHub.UI
             {
                 id = "settings", group = "other",
                 title = "見た目や表示を変えたい",
-                summary = "配色・アクセントカラー・サイドバーに出す機能・ウィンドウの開き方。",
+                summary = "配色・アクセントカラー・サイドバーに出す機能・ウィンドウの開き方・効果音。",
                 steps =
                 {
                     new GuideStep("右上の ①「設定」を開きます。② テーマ（Unity のグレー・ダーク・ライト）とアクセントカラーを選べます。③ サイドバーに出すワークフローも選べます。ウィンドウの開き方や保存場所もここにあります。", "settings-1"),
+                    new GuideStep("「効果音」では、時間のかかる作業（シーケンスエクスポート・インポートなど）が終わったときと、確認待ちで止まったときの音を選べます。音量の調整、試し聴き、自分の音（wav / mp3 / ogg）への入れ替え、鳴らす作業のオン・オフもここで。"),
                 },
                 actionLabel = "設定を開く",
                 action = w => w.Show(new SettingsPage()),

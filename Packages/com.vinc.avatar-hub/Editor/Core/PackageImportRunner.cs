@@ -51,6 +51,8 @@ namespace VInc.AvatarHub
         public string name;
         public List<ImportJob> jobs = new List<ImportJob>();
         public bool running;
+        /// <summary>始めた（再開した）時刻（EditorApplication.timeSinceStartup）。効果音を鳴らすか決めるため。</summary>
+        public double startedAt;
         /// <summary>衝突（黄色の「!」）があったら止めて確認する。false なら無視して入れる。</summary>
         public bool stopOnConflict = true;
 
@@ -146,6 +148,7 @@ namespace VInc.AvatarHub
         {
             if (CannotStart(s) != null) return;
             s.running = true;
+            s.startedAt = EditorApplication.timeSinceStartup;
             Save(s);
             StartTicking();
         }
@@ -180,6 +183,13 @@ namespace VInc.AvatarHub
         }
 
         // ───────────── 実行 ─────────────
+
+        static string EventOf(ImportSession s) => s.name == "single" ? "package" : "seq-import";
+
+        static double Elapsed(ImportSession s) => s.startedAt > 0 ? EditorApplication.timeSinceStartup - s.startedAt : 0;
+
+        /// <summary>確認待ちで止まった（離れていても気づけるように音で知らせる）。</summary>
+        static void Stopped(ImportSession s) => ViahSound.Attention(EventOf(s), Elapsed(s));
 
         static void StartTicking()
         {
@@ -237,6 +247,7 @@ namespace VInc.AvatarHub
                 s.running = false;
                 Save(s);
                 StopTicking();
+                ViahSound.Done(EventOf(s), Elapsed(s));
                 return;
             }
             Process(s, next);
@@ -277,6 +288,7 @@ namespace VInc.AvatarHub
                 s.running = false;
                 job.message = "スクリプトのエラーがあるため止めました。Console のエラーを直してから再開してください。";
                 Save(s);
+                Stopped(s);
                 return;
             }
 
@@ -297,6 +309,7 @@ namespace VInc.AvatarHub
                 job.message = $"黄色の「!」（同じ名前の別のファイル）が {conflicts.Count} 件あるため止めました";
                 s.running = false;
                 Save(s);
+                Stopped(s);
                 return;
             }
             if (!a.NeedsImport && !job.interactive)
@@ -425,6 +438,7 @@ namespace VInc.AvatarHub
                         job.differences = ProfileCompare.Describe(named, p);
                         s.running = false;
                         Save(s);
+                        Stopped(s);
                         return false;
                 }
             }

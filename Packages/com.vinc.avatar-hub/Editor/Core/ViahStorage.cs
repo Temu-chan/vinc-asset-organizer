@@ -35,6 +35,10 @@ namespace VInc.AvatarHub
         public static string SettingsFile => Path.Combine(DataDir, "settings.json");
         /// <summary>書き出しの履歴（前回のバージョンなど）。Undo では戻さない。</summary>
         public static string HistoryFile => Path.Combine(DataDir, "history.json");
+        /// <summary>効果音を自分の音に入れ替えたときのコピー先（PC 共通）。</summary>
+        public static string SoundsDir => Path.Combine(DataDir, "Sounds");
+        /// <summary>プロジェクトブックマーカーの一覧（PC 共通）。</summary>
+        public static string BookmarksFile => Path.Combine(DataDir, "bookmarks.json");
         /// <summary>独立ウィンドウの前回の位置と大きさ。Undo では戻さない。</summary>
         public static string WindowFile => Path.Combine(DataDir, "window.json");
 
@@ -169,7 +173,7 @@ namespace VInc.AvatarHub
 
         // ───────────── Undo 用のスナップショット ─────────────
 
-        /// <summary>Undo で追いかける JSON（プリセット・プロジェクト記録・プロファイル・設定）の中身を全部読む。</summary>
+        /// <summary>Undo で追いかける JSON（プリセット・プロジェクト記録・プロファイル・設定・ブックマーク）の中身を全部読む。</summary>
         public static Dictionary<string, string> SnapshotTracked()
         {
             var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -182,6 +186,7 @@ namespace VInc.AvatarHub
             Dir(ProjectsDir, ProjectExt);
             Dir(ProfilesDir, ProfileExt);
             if (File.Exists(SettingsFile)) map[SettingsFile] = File.ReadAllText(SettingsFile, Encoding.UTF8);
+            if (File.Exists(BookmarksFile)) map[BookmarksFile] = File.ReadAllText(BookmarksFile, Encoding.UTF8);
             return map;
         }
 

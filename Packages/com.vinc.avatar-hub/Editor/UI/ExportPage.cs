@@ -417,8 +417,11 @@ namespace VInc.AvatarHub.UI
             window.Show(new ProfileWizardPage(p, null, saved => window.Show(new ExportPage(saved.id))));
         }
 
+        static double Clock => EditorApplication.timeSinceStartup;
+
         void ExportSingle(PackageProfile p, NameOptions opts)
         {
+            var started = Clock;
             var now = DateTime.Now; // 押した瞬間の時刻を使う
             var fileName = PackageNaming.Build(p.PackageBaseName, opts, now);
             var report = ProfileResolver.Validate(p);
@@ -432,16 +435,19 @@ namespace VInc.AvatarHub.UI
             }
             if (report.HasWarnings)
             {
+                // チェックに時間がかかったときは、離れていても気づけるように知らせる
+                ViahSound.Attention("export", Clock - started);
                 window.ShowDialog("書き出す前に確認してください", "プロファイルの登録と、実際に使われているファイルに差があります。", Issues(report, p),
                     new ViahWindow.DialogButton("やめる", null, "ghost"),
                     new ViahWindow.DialogButton("修正する", () => OpenFix(p)),
-                    new ViahWindow.DialogButton("このまま書き出す", () => DoExport(p, opts, fileName, report), "primary"));
+                    new ViahWindow.DialogButton("このまま書き出す", () => DoExport(p, opts, fileName, report, Clock), "primary"));
                 return;
             }
-            DoExport(p, opts, fileName, report);
+            DoExport(p, opts, fileName, report, started);
         }
 
-        void DoExport(PackageProfile p, NameOptions opts, string fileName, ValidationReport report)
+        /// <param name="started">かかった時間を測り始めた時刻（効果音を鳴らすか決めるため）</param>
+        void DoExport(PackageProfile p, NameOptions opts, string fileName, ValidationReport report, double started)
         {
             var path = PackageExporter.OutputPathOf(p, fileName);
             if (File.Exists(path) && !EditorUtility.DisplayDialog("上書きの確認", $"{Path.GetFileName(path)} は既にあります。上書きしますか？", "上書きする", "やめる"))
@@ -453,11 +459,13 @@ namespace VInc.AvatarHub.UI
                 versions.Remove(p.id);
                 Render();
                 window.Toast($"書き出しました：{Path.GetFileName(path)}（{report.files.Count} ファイル）", "", "フォルダーを開く", () => ViahStorage.RevealFile(path));
+                ViahSound.Done("export", Clock - started);
             }
             catch (Exception e)
             {
                 Debug.LogException(e);
                 window.Toast("書き出しに失敗しました：" + e.Message, "danger");
+                ViahSound.Attention("export", Clock - started);
             }
         }
 
@@ -661,6 +669,7 @@ namespace VInc.AvatarHub.UI
 
         void RunSequence(NameOptions common)
         {
+            var started = Clock;
             var now = DateTime.Now; // 全部この時刻で名前を付ける
             var targets = ViahDatabase.Profiles.Where(p => seqChecked.Contains(p.id)).ToList();
             if (targets.Count == 0) return;
@@ -697,9 +706,10 @@ namespace VInc.AvatarHub.UI
             bool needConfirm = items.Any(x => x.report.HasWarnings || x.report.IsEmpty || x.overwrite) || dupNames.Count > 0;
             if (!needConfirm)
             {
-                Execute(items);
+                Execute(items, started);
                 return;
             }
+            ViahSound.Attention("seq-export", Clock - started);
 
             var body = UIKit.Div();
             foreach (var it in items)
@@ -752,10 +762,10 @@ namespace VInc.AvatarHub.UI
             window.ShowDialog("書き出す前のチェック",
                 "問題のあるプロファイルがあります。内容を確認して、このまま書き出すか、修正してください。始めたら最後まで止まりません。", body,
                 new ViahWindow.DialogButton("やめる", null, "ghost"),
-                new ViahWindow.DialogButton($"このまま {runnable} 件を書き出す", () => Execute(items), "primary"));
+                new ViahWindow.DialogButton($"このまま {runnable} 件を書き出す", () => Execute(items, Clock), "primary"));
         }
 
-        void Execute(List<SeqItem> items)
+        void Execute(List<SeqItem> items, double started)
         {
             var results = new List<(SeqItem item, string error)>();
             var run = items.Where(x => !x.report.IsEmpty).ToList();
@@ -801,6 +811,8 @@ namespace VInc.AvatarHub.UI
             }
             int ok = results.Count(r => r.error == null);
             var firstPath = results.FirstOrDefault(r => r.error == null).item?.path;
+            if (results.Any(r => r.error != null && !r.item.report.IsEmpty)) ViahSound.Attention("seq-export", Clock - started);
+            else ViahSound.Done("seq-export", Clock - started);
             window.ShowDialog(ok == results.Count ? $"{ok} 件を書き出しました" : $"{ok} / {results.Count} 件を書き出しました", null, body,
                 new ViahWindow.DialogButton("閉じる", null, "ghost"),
                 new ViahWindow.DialogButton("書き出し先を開く", () =>

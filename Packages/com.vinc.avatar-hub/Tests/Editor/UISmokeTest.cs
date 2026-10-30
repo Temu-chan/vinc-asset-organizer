@@ -193,6 +193,43 @@ namespace VInc.AvatarHub.Tests
                 window.Show(new ImportQueuePage());
                 ScrollToEnd();
             }));
+            steps.Add(("bookmarks", () =>
+            {
+                // 保存はせず、画面に出すだけ（実際のブックマークには触らない）
+                var items = ViahDatabase.Bookmarks.items;
+                items.Clear();
+                items.Add(new Bookmark { id = ViahStorage.NewId(), target = new AssetRef(PkgRoot) });
+                items.Add(new Bookmark { id = ViahStorage.NewId(), label = "ギフトボックスのプレハブ", target = new AssetRef(PkgRoot + "/Box.prefab") });
+                items.Add(new Bookmark { id = ViahStorage.NewId(), target = new AssetRef { path = "Assets/OtherProject/Characters" } });
+                window.Show(new BookmarksPage());
+            }));
+            steps.Add(("bookmarks_end", () => ScrollToEnd()));
+            steps.Add(("bookmark_window_open", () => BookmarkWindow.Open()));
+            steps.Add(("bookmark_window_close", () =>
+            {
+                foreach (var w in Resources.FindObjectsOfTypeAll<BookmarkWindow>()) w.Close();
+                ViahDatabase.Reload();
+                window.Focus();
+            }));
+            steps.Add(("searcher_empty", () =>
+            {
+                SetSearch("", 0, "", "", false);
+                window.Show(new SearcherPage());
+            }));
+            steps.Add(("searcher_folder", () =>
+            {
+                SetSearch(PkgRoot + "/Box.mat", 1, PkgRoot, "", true);
+                window.Show(new SearcherPage());
+                Invoke("Run");
+                ScrollToEnd();
+            }));
+            steps.Add(("searcher_prefab", () =>
+            {
+                SetSearch(PkgRoot + "/Box.mat", 2, "", PkgRoot + "/Box.prefab", false);
+                window.Show(new SearcherPage());
+                Invoke("Run");
+                ScrollToEnd();
+            }));
             steps.Add(("export_single", () =>
             {
                 SessionState.SetInt("VInc.VIAH.exportMode", 0);
@@ -210,6 +247,7 @@ namespace VInc.AvatarHub.Tests
                 window.Navigate("home");
             }));
             steps.Add(("settings", () => window.Show(new SettingsPage())));
+            steps.Add(("settings_sound", () => window.Show(new SettingsPage("sound"))));
             steps.Add(("guide_all", () =>
             {
                 // すべてのガイドが例外なく作れること
@@ -268,6 +306,17 @@ namespace VInc.AvatarHub.Tests
                 foreach (var sv in window.rootVisualElement.Query<ScrollView>().ToList())
                     sv.verticalScroller.value = sv.verticalScroller.highValue;
             }).ExecuteLater(300);
+        }
+
+        static void SetSearch(string target, int scope, string folder, string prefab, bool indirect)
+        {
+            var t = typeof(SearcherPage);
+            const BindingFlags f = BindingFlags.Static | BindingFlags.NonPublic;
+            t.GetField("target", f).SetValue(null, target);
+            t.GetField("scope", f).SetValue(null, scope);
+            t.GetField("folder", f).SetValue(null, folder);
+            t.GetField("prefab", f).SetValue(null, prefab);
+            t.GetField("indirect", f).SetValue(null, indirect);
         }
 
         static void Go(int step)

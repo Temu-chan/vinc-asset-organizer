@@ -257,6 +257,20 @@ namespace VInc.AvatarHub
         public bool seqUseDebug;
         public List<ProfilePrefs> profilePrefs = new List<ProfilePrefs>();
 
+        // 時間のかかる作業が終わったとき・確認待ちで止まったときの効果音
+        public bool soundOn = true;
+        /// <summary>0〜1</summary>
+        public float soundVolume = 0.6f;
+        /// <summary>内蔵の音のキー（ViahSound.Presets）、または "file"（Sounds フォルダーの soundDoneFile）</summary>
+        public string soundDone = "pirorin";
+        public string soundDoneFile = "";
+        public string soundAttention = "pinpon";
+        public string soundAttentionFile = "";
+        /// <summary>鳴らさない作業のキー（ViahSound.Events）。</summary>
+        public List<string> soundMuted = new List<string>();
+        /// <summary>すぐ終わったとき（3 秒未満）は鳴らさない。</summary>
+        public bool soundSkipShort = true;
+
         public ProfilePrefs Prefs(string profileId, bool create)
         {
             profilePrefs ??= new List<ProfilePrefs>();
@@ -284,6 +298,50 @@ namespace VInc.AvatarHub
             if (string.IsNullOrWhiteSpace(debugLabel)) debugLabel = "Debug";
             defaultOutputFolder ??= "";
             profilePrefs ??= new List<ProfilePrefs>();
+            soundVolume = Mathf.Clamp01(soundVolume);
+            if (string.IsNullOrEmpty(soundDone)) soundDone = "pirorin";
+            if (string.IsNullOrEmpty(soundAttention)) soundAttention = "pinpon";
+            soundDoneFile ??= "";
+            soundAttentionFile ??= "";
+            soundMuted ??= new List<string>();
+        }
+    }
+
+    // ───────────────────────── プロジェクトブックマーカー ─────────────────────────
+
+    /// <summary>Project ウィンドウで飛びたいフォルダー（またはアセット）。</summary>
+    [Serializable]
+    public class Bookmark
+    {
+        public string id;
+        /// <summary>表示名（空ならフォルダー名）。</summary>
+        public string label = "";
+        /// <summary>
+        /// GUID とパス。別の Unity プロジェクトでは GUID が違うので、同じパスがあるときだけ使える。
+        /// </summary>
+        public AssetRef target = new AssetRef();
+
+        public string DisplayLabel => !string.IsNullOrWhiteSpace(label) ? label : Path.GetFileName(target?.path ?? "");
+    }
+
+    /// <summary>ブックマークの一覧（PC 共通・JSON で人に渡せる）。</summary>
+    [Serializable]
+    public class BookmarkList
+    {
+        public string kind = "AvatarHub.Bookmarks";
+        public int schema = 1;
+        public List<Bookmark> items = new List<Bookmark>();
+
+        public void Sanitize()
+        {
+            items ??= new List<Bookmark>();
+            items.RemoveAll(b => b == null);
+            foreach (var b in items)
+            {
+                if (string.IsNullOrEmpty(b.id)) b.id = ViahStorage.NewId();
+                b.label ??= "";
+                b.target ??= new AssetRef();
+            }
         }
     }
 

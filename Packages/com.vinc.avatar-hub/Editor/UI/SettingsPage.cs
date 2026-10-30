@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -41,11 +43,14 @@ namespace VInc.AvatarHub.UI
             c.Add(WindowCard());
             var export = ExportCard();
             c.Add(export);
+            var sound = SoundCard();
+            c.Add(sound);
             c.Add(DataCard());
             c.Add(UndoCard());
             c.Add(AboutCard());
 
             if (focus == "export") scroll.schedule.Execute(() => scroll.ScrollTo(export)).ExecuteLater(50);
+            if (focus == "sound") scroll.schedule.Execute(() => scroll.ScrollTo(sound)).ExecuteLater(50);
         }
 
         // ───────────── 見た目 ─────────────
@@ -234,6 +239,139 @@ namespace VInc.AvatarHub.UI
             return card;
         }
 
+        // ───────────── 効果音 ─────────────
+
+        VisualElement SoundCard()
+        {
+            var card = UIKit.Card();
+            card.name = "card-sound";
+            card.Add(UIKit.SectionHead(null, "効果音", "時間のかかる作業が終わったときと、確認待ちで止まったときに音で知らせます"));
+            var on = new Switch("効果音を鳴らす", S.soundOn);
+            on.changed += v =>
+            {
+                S.soundOn = v;
+                Apply(v ? "効果音をオン" : "効果音をオフ");
+                Rebuild();
+            };
+            card.Add(on);
+            var body = UIKit.Div();
+            body.SetEnabled(S.soundOn);
+            card.Add(body);
+
+            body.Add(UIKit.Text("音量", "viah-field-label", "viah-mt16"));
+            var volRow = UIKit.Row();
+            var slider = new Slider(0, 100) { value = S.soundVolume * 100 };
+            slider.AddToClassList("viah-slider");
+            var volLabel = UIKit.Text($"{Mathf.RoundToInt(S.soundVolume * 100)}%", "viah-ml8", "viah-sound-vol");
+            slider.RegisterValueChangedCallback(e =>
+            {
+                S.soundVolume = Mathf.Clamp01(e.newValue / 100f);
+                volLabel.text = $"{Mathf.RoundToInt(e.newValue)}%";
+            });
+            // 動かし終わったときに保存して、その音量で鳴らしてみる
+            slider.RegisterCallback<PointerCaptureOutEvent>(_ =>
+            {
+                ViahDatabase.SaveSettings("効果音の音量を変更", "sound-volume");
+                ViahSound.Play(false);
+            });
+            volRow.Add(slider);
+            volRow.Add(volLabel);
+            body.Add(volRow);
+
+            body.Add(SoundRow("作業が終わったとき", false));
+            body.Add(SoundRow("確認待ちで止まったとき（衝突・同じ名前のプロファイルなど）", true));
+
+            body.Add(UIKit.Text("鳴らす作業", "viah-field-label", "viah-mt16"));
+            var grid = UIKit.Div("viah-sound-events");
+            foreach (var (key, label) in ViahSound.Events)
+            {
+                var k = key;
+                var sw = new Switch(label, !S.soundMuted.Contains(k));
+                sw.changed += v =>
+                {
+                    if (v) S.soundMuted.Remove(k);
+                    else if (!S.soundMuted.Contains(k)) S.soundMuted.Add(k);
+                    Apply(v ? $"「{label}」で鳴らす" : $"「{label}」で鳴らさない");
+                };
+                grid.Add(sw);
+            }
+            body.Add(grid);
+            var skip = new Switch($"すぐ終わったとき（{ViahSound.ShortSeconds:0} 秒未満）は鳴らさない", S.soundSkipShort);
+            skip.style.marginTop = 10;
+            skip.changed += v =>
+            {
+                S.soundSkipShort = v;
+                Apply(v ? "すぐ終わったときは鳴らさない" : "すぐ終わっても鳴らす");
+            };
+            body.Add(skip);
+            body.Add(UIKit.Text("内蔵の音はこのツールが作った音なので、自由に使えます。自分の音（wav / mp3 / ogg）を選ぶと保存場所の Sounds フォルダーにコピーし、どの Unity プロジェクトでも同じ音になります。Windows では Windows の機能で鳴らすので、Unity の「Mute Audio」には左右されません。音が小さいときは、Windows の音量ミキサーの「Unity」も確かめてください。",
+                "viah-faint", "viah-small", "viah-wrap", "viah-mt8"));
+            return card;
+        }
+
+        VisualElement SoundRow(string title, bool attention)
+        {
+            var row = UIKit.Div();
+            row.Add(UIKit.Text(title, "viah-field-label", "viah-mt16"));
+            var line = UIKit.Row("viah-btn-group");
+            var key = attention ? S.soundAttention : S.soundDone;
+            var file = attention ? S.soundAttentionFile : S.soundDoneFile;
+            var choices = ViahSound.Presets.Select(p => p.key).ToList();
+            if (!string.IsNullOrEmpty(file)) choices.Add(ViahSound.FileKey);
+            string Label(string k) => k == ViahSound.FileKey ? "自分の音：" + file : ViahSound.LabelOf(k);
+            var popup = new PopupField<string>(null, choices, choices.Contains(key) ? key : choices[0], Label, Label);
+            popup.AddToClassList("viah-sound-popup");
+            popup.RegisterValueChangedCallback(e =>
+            {
+                if (attention) S.soundAttention = e.newValue;
+                else S.soundDone = e.newValue;
+                Apply(attention ? "確認待ちの効果音を変更" : "完了の効果音を変更");
+                ViahSound.Play(attention);
+            });
+            line.Add(popup);
+            line.Add(UIKit.Btn("PlayButton", "試しに鳴らす", () => ViahSound.Play(attention), "small", "viah-ml8"));
+            line.Add(UIKit.Btn("Folder Icon", "自分の音を選ぶ…", () => PickSound(attention), "small", "viah-ml4"));
+            row.Add(line);
+            return row;
+        }
+
+        void PickSound(bool attention)
+        {
+            var path = EditorUtility.OpenFilePanelWithFilters("効果音を選ぶ", "", new[] { "音のファイル", "wav,mp3,ogg" });
+            if (string.IsNullOrEmpty(path)) return;
+            string name;
+            try
+            {
+                name = ViahSound.CopyIn(path);
+            }
+            catch (Exception e)
+            {
+                window.Toast("ファイルをコピーできませんでした：" + e.Message, "danger");
+                return;
+            }
+            ViahSound.Load(Path.Combine(ViahStorage.SoundsDir, name), loaded =>
+            {
+                if (loaded == null)
+                {
+                    window.Toast("この音のファイルは読めませんでした（wav / mp3 / ogg が使えます）", "warn");
+                    return;
+                }
+                if (attention)
+                {
+                    S.soundAttention = ViahSound.FileKey;
+                    S.soundAttentionFile = name;
+                }
+                else
+                {
+                    S.soundDone = ViahSound.FileKey;
+                    S.soundDoneFile = name;
+                }
+                Apply(attention ? "確認待ちの効果音を入れ替え" : "完了の効果音を入れ替え");
+                Rebuild();
+                ViahSound.Play(attention);
+            });
+        }
+
         // ───────────── データ ─────────────
 
         VisualElement DataCard()
@@ -287,6 +425,7 @@ namespace VInc.AvatarHub.UI
             card.Add(Bullet("プロファイルの中身の選択、起点の追加・削除、自動検出"));
             card.Add(Bullet("保存・削除・複製・JSON の読み込み・設定の変更"));
             card.Add(Bullet("シーケンスインポートのキューの追加・並べ替え・削除（インポート中は除く）"));
+            card.Add(Bullet("ブックマークの追加・削除・名前の変更・並べ替え・JSON の読み込み"));
             card.Add(Bullet("フォルダーの作成（取り消すと、作ったフォルダーを削除します。中にファイルを置いていた場合は残します）"));
             card.Add(UIKit.Text("元に戻せない操作", "viah-bold", "viah-mt12"));
             card.Add(Bullet("unitypackage の書き出し（ファイルはそのまま残り、「前回のバージョン」の記録も戻りません）"));

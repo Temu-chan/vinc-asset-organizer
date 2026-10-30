@@ -56,7 +56,7 @@ namespace VInc.AvatarHub.UI
 
     public class ViahWindow : EditorWindow
     {
-        const string UssPath = "Packages/com.vinc.avatar-hub/Editor/UI/AvatarHub.uss";
+        public const string UssPath = "Packages/com.vinc.avatar-hub/Editor/UI/AvatarHub.uss";
         const string LogoPath = "Packages/com.vinc.avatar-hub/Editor/UI/Images/viah_logo.png";
         const string PageKey = "VInc.VIAH.page";
 
@@ -66,6 +66,8 @@ namespace VInc.AvatarHub.UI
             new Workflow { key = "profiles", label = "プロファイル登録", description = "unitypackage に入れる中身を登録する", create = () => new ProfilesPage() },
             new Workflow { key = "export", label = "エクスポート", description = "unitypackage を書き出す（単発・シーケンス）", create = () => new ExportPage() },
             new Workflow { key = "import", label = "シーケンスインポート", description = "複数の unitypackage を順番にまとめてインポートする", create = () => new ImportQueuePage() },
+            new Workflow { key = "bookmarks", label = "プロジェクトブックマーカー", description = "よく使うフォルダーを登録して、Project ウィンドウですぐ飛べるようにする", create = () => new BookmarksPage() },
+            new Workflow { key = "searcher", label = "アセットSearcher", description = "選んだアセットを使っているもの（マテリアル・コントローラーなど）を探す", create = () => new SearcherPage() },
         };
 
         /// <summary>配色（アクセント）の一覧。key, 表示名, 見本の色</summary>
@@ -126,6 +128,14 @@ namespace VInc.AvatarHub.UI
             w.Show();
             w.Focus();
             return w;
+        }
+
+        /// <summary>ウィンドウを開いて、その画面を出す（まだ開いていなければ、開いたときにその画面になる）。</summary>
+        public static void OpenAt(string section)
+        {
+            SessionState.SetString(PageKey, section);
+            var w = Open();
+            if (w.current != null) w.Navigate(section);
         }
 
         // ───────────── 独立ウィンドウの位置と大きさ ─────────────
@@ -318,9 +328,11 @@ namespace VInc.AvatarHub.UI
 
         static readonly string[] ThemeClasses = { "theme-dark", "theme-light", "theme-unity-dark", "theme-unity-light" };
 
-        public void ApplyTheme()
+        public void ApplyTheme() => ApplyThemeTo(rootVisualElement);
+
+        /// <summary>設定のテーマとアクセントカラーを付ける（ブックマークの小窓でも使う）。</summary>
+        public static void ApplyThemeTo(VisualElement root)
         {
-            var root = rootVisualElement;
             var s = ViahDatabase.Settings;
             foreach (var c in ThemeClasses) root.RemoveFromClassList(c);
             foreach (var a in Accents) root.RemoveFromClassList("accent-" + a.key);

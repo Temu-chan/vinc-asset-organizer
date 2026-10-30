@@ -38,7 +38,7 @@ namespace VInc.AvatarHub.Tests
 
         static readonly string[] HintKeys =
         {
-            "projects.intro", "preset.edit", "wizard.method", "wizard.drop", "wizard.select", "export.single", "export.seq", "home.search", "import.intro",
+            "projects.intro", "preset.edit", "wizard.method", "wizard.drop", "wizard.select", "export.single", "export.seq", "home.search", "import.intro", "bookmark.intro",
         };
 
         const string Gift = "Assets/GiftBoxGimmick";
@@ -690,6 +690,69 @@ namespace VInc.AvatarHub.Tests
                     marks = new[] { (9, "#card-result", false) },
                 },
 
+                // プロジェクトブックマーカー
+                new Shot
+                {
+                    name = "bookmark-1",
+                    plain = true,
+                    setup = () =>
+                    {
+                        var items = ViahDatabase.Bookmarks.items;
+                        items.Clear();
+                        items.Add(new Bookmark { id = ViahStorage.NewId(), label = "くじらのテクスチャ", target = new AssetRef(Whale + "/Textures") });
+                        items.Add(new Bookmark { id = ViahStorage.NewId(), target = new AssetRef(Whale + "/Animations/Controllers") });
+                        items.Add(new Bookmark { id = ViahStorage.NewId(), target = new AssetRef(Whale + "/Prefabs") });
+                        items.Add(new Bookmark { id = ViahStorage.NewId(), target = new AssetRef { path = "Assets/OtherProject/Characters" } });
+                        ViahDatabase.SaveBookmarks("ガイド用");
+                        window.Navigate("bookmarks");
+                    },
+                    marks = new[] { (1, "nav:プロジェクトブックマーカー", true), (2, "#card-bookmark-add", false), (3, ".viah-bookmark-row", false), (4, "#btn-bookmark-window", true) },
+                },
+                new Shot
+                {
+                    name = "bookmark-share-1",
+                    setup = () => window.Navigate("bookmarks"),
+                    after = () => ScrollTo("#card-bookmark-share"),
+                    marks = new[] { (1, "#card-bookmark-share", false) },
+                },
+
+                // アセットSearcher
+                new Shot
+                {
+                    name = "searcher-1",
+                    setup = () =>
+                    {
+                        SetSearch(Whale + "/Textures/Whale_Body.png", 0, "", "", true);
+                        window.Navigate("searcher");
+                    },
+                    marks = new[] { (1, "#card-search-target", false), (2, "#card-search-scope>.viah-seg", false), (3, "switch:その先もたどる", true), (4, "#btn-search-run", true) },
+                },
+                new Shot
+                {
+                    name = "searcher-2",
+                    plain = true,
+                    setup = () =>
+                    {
+                        SetSearch(Whale + "/Textures/Whale_Body.png", 0, "", "", true);
+                        window.Navigate("searcher");
+                        CallPage("Run");
+                    },
+                    after = () => ScrollTop("#card-search-results"),
+                    marks = new[] { (5, "#card-search-results", false) },
+                },
+                new Shot
+                {
+                    name = "searcher-3",
+                    setup = () =>
+                    {
+                        SetSearch(Whale + "/Animations/Whale_GlowOn.anim", 2, "", Whale + "/Prefabs/WhaleGimmick.prefab", true);
+                        window.Navigate("searcher");
+                        CallPage("Run");
+                    },
+                    after = () => ScrollTop("#card-search-results"),
+                    marks = new[] { (1, "#card-search-results", false) },
+                },
+
                 // そのほか
                 new Shot
                 {
@@ -923,6 +986,17 @@ namespace VInc.AvatarHub.Tests
                     return;
                 }
             }
+        }
+
+        static void SetSearch(string target, int scope, string folder, string prefab, bool indirect)
+        {
+            var t = typeof(SearcherPage);
+            const BindingFlags f = BindingFlags.Static | BindingFlags.NonPublic;
+            t.GetField("target", f).SetValue(null, target);
+            t.GetField("scope", f).SetValue(null, scope);
+            t.GetField("folder", f).SetValue(null, folder);
+            t.GetField("prefab", f).SetValue(null, prefab);
+            t.GetField("indirect", f).SetValue(null, indirect);
         }
 
         static void Press(string spec)

@@ -498,7 +498,9 @@ namespace VInc.AvatarHub.UI
 
         void RunScan()
         {
+            var started = EditorApplication.timeSinceStartup;
             scan = DependencyScanner.Scan(DependencyScanner.ExpandSeeds(seeds));
+            ViahSound.Done("scan", EditorApplication.timeSinceStartup - started);
             scanTried = true;
             newPaths = new HashSet<string>();
             int auto = 0, external = 0;

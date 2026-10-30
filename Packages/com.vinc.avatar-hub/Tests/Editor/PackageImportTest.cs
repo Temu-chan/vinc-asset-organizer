@@ -35,6 +35,8 @@ namespace VInc.AvatarHub.Tests
             public bool interactive;
             public int pass, fail;
             public int count;
+            /// <summary>鳴らそうとした効果音（done / attention）。リロードをまたいで記録する。</summary>
+            public List<string> sounds = new List<string>();
             public List<string> log = new List<string>();
             public double waitStart;
         }
@@ -61,6 +63,12 @@ namespace VInc.AvatarHub.Tests
             {
                 driving = true;
                 EditorApplication.update += Drive;
+                ViahSound.Played += a => Log("情報：効果音 " + (a ? "attention" : "done")) ;
+                ViahSound.Played += a =>
+                {
+                    st.sounds.Add(a ? "attention" : "done");
+                    Save();
+                };
             }
         }
 
@@ -154,6 +162,10 @@ namespace VInc.AvatarHub.Tests
             if (Directory.Exists(Work)) Directory.Delete(Work, true);
             Directory.CreateDirectory(Work);
             ViahDatabase.Reload();
+            // すぐ終わっても鳴らす（鳴らそうとしたかを見る）。音量 0 なので実際には鳴らない
+            ViahDatabase.Settings.soundSkipShort = false;
+            ViahDatabase.Settings.soundVolume = 0;
+            ViahDatabase.SaveSettings("テスト：効果音");
 
             AssetDatabase.CreateFolder("Assets", "VIAH_PkgTest");
             AssetDatabase.CreateFolder(Root, "Gimmick");
@@ -269,6 +281,7 @@ namespace VInc.AvatarHub.Tests
             Check(SelectionModel.FromProfile(p).ResolveFiles().Count == 6, "登録したファイルがすべて見つかる");
             Check(PackageExporter.LastVersion(p)?.ToString() == "1.2.3", "前回のバージョン 1.2.3 を記録");
             Check(!j.warnings.Any(w => w.Contains("無いファイル")), "パッケージのファイルはすべて登録した");
+            Check(st.sounds.LastOrDefault() == "done", "終わったら完了の音");
             return true;
         }
 
@@ -313,6 +326,7 @@ namespace VInc.AvatarHub.Tests
             Check(j.status == "conflict" && !s.running, "衝突で止まった：" + j.status);
             Check(j.conflictCount == 1, "衝突の件数：" + j.conflictCount);
             Check(s.jobs[1].status == "waiting", "次の行は待機のまま");
+            Check(st.sounds.LastOrDefault() == "attention", "衝突で止まったら確認待ちの音");
             PackageImportRunner.Resolve(s, j, "force");
             Check(s.running, "「このまま入れる」で再開した");
             return true;
@@ -335,6 +349,7 @@ namespace VInc.AvatarHub.Tests
             Check(j1.status == "done" && AssetRef.Exists(ScriptDir + "/ViahPkgTestBehaviour.cs"), "2 行目：スクリプトが入った（リロードをまたいで完了）");
             var p = ViahDatabase.FindProfile(j1.profileId);
             Check(p != null && p.mode == "manual" && p.includeFiles.Count == 1 && p.name == "ScriptPack", "プレハブが無いので手動登録で作った");
+            Check(st.sounds.LastOrDefault() == "done", "リロードをまたいでも、全部終わったら完了の音");
             return true;
         }
 

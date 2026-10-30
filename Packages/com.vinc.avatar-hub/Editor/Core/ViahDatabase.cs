@@ -19,6 +19,7 @@ namespace VInc.AvatarHub
         static List<PackageProfile> profiles;
         static ViahSettings settings;
         static ExportHistory history;
+        static BookmarkList bookmarks;
 
         /// <summary>何かが保存・削除されたときに呼ばれる。</summary>
         public static event Action Changed;
@@ -93,8 +94,24 @@ namespace VInc.AvatarHub
             }
         }
 
+        /// <summary>プロジェクトブックマーカーの一覧（はじめは空。各自が登録する）。</summary>
+        public static BookmarkList Bookmarks
+        {
+            get
+            {
+                if (bookmarks == null)
+                {
+                    bookmarks = File.Exists(ViahStorage.BookmarksFile) ? ViahStorage.Read<BookmarkList>(ViahStorage.BookmarksFile) : null;
+                    bookmarks ??= new BookmarkList();
+                    bookmarks.Sanitize();
+                }
+                return bookmarks;
+            }
+        }
+
         public static void Reload()
         {
+            bookmarks = null;
             presets = null;
             projects = null;
             profiles = null;
@@ -232,6 +249,13 @@ namespace VInc.AvatarHub
         public static void SaveSettings(string label = "設定を変更", string coalesceKey = null)
         {
             UndoHub.Data(label, () => ViahStorage.Write(ViahStorage.SettingsFile, Settings), coalesceKey);
+            Changed?.Invoke();
+        }
+
+        /// <summary>ブックマークを保存する（Undo に記録）。</summary>
+        public static void SaveBookmarks(string label, string coalesceKey = null)
+        {
+            UndoHub.Data(label, () => ViahStorage.Write(ViahStorage.BookmarksFile, Bookmarks), coalesceKey);
             Changed?.Invoke();
         }
 

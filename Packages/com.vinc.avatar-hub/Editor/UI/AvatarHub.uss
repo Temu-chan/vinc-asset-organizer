@@ -2724,3 +2724,123 @@
     margin-left: 30px;
     margin-top: 4px;
 }
+
+/* ───────────────────────── 効果音（設定） ───────────────────────── */
+
+.viah-slider {
+    flex-grow: 1;
+    max-width: 320px;
+    margin: 0;
+}
+
+.viah-sound-vol {
+    width: 40px;
+}
+
+.viah-sound-popup {
+    width: 240px;
+    margin: 0;
+}
+
+.viah-sound-events {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.viah-sound-events > .viah-switch {
+    width: 50%;
+    min-width: 200px;
+    margin-bottom: 6px;
+}
+
+/* ───────────────────────── プロジェクトブックマーカー ───────────────────────── */
+
+.viah-bookmark-row {
+    align-items: center;
+    margin-top: 6px;
+    padding: 7px 10px;
+    border-radius: 7px;
+    border-width: 1px;
+    border-color: var(--border);
+    background-color: var(--surface-2);
+    cursor: link;
+}
+
+.viah-bookmark-row:hover {
+    border-color: var(--accent);
+    background-color: var(--accent-soft);
+}
+
+.viah-bookmark-row > .viah-grow {
+    min-width: 0;
+    flex-shrink: 1;
+}
+
+.viah-bookmark-row.is-missing,
+.viah-mini-item.is-missing {
+    opacity: 0.55;
+}
+
+/* 小窓 */
+.viah-root.viah-mini {
+    font-size: 12px;
+}
+
+.viah-mini-head {
+    align-items: center;
+    padding: 4px 6px 4px 10px;
+    border-bottom-width: 1px;
+    border-color: var(--border);
+    background-color: var(--surface);
+    flex-shrink: 0;
+}
+
+.viah-mini-item {
+    align-items: center;
+    height: 26px;
+    padding: 0 10px;
+    overflow: hidden;
+    cursor: link;
+}
+
+.viah-mini-item:hover {
+    background-color: var(--accent-soft);
+}
+
+.viah-mini-item > Label {
+    flex-shrink: 1;
+}
+
+.viah-mini-empty {
+    margin: 10px;
+}
+
+/* ───────────────────────── アセットSearcher ───────────────────────── */
+
+.viah-search-target {
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: 7px;
+    border-width: 1px;
+    border-color: var(--border);
+    background-color: var(--surface-2);
+}
+
+.viah-search-target > .viah-grow,
+.viah-search-hit > .viah-grow {
+    min-width: 0;
+    flex-shrink: 1;
+}
+
+.viah-search-hit {
+    align-items: center;
+    margin-top: 6px;
+    padding: 7px 10px;
+    border-radius: 7px;
+    background-color: var(--surface-2);
+}
+
+.viah-root Label.viah-search-via {
+    color: var(--auto);
+    margin-top: 2px;
+}
